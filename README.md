@@ -8,7 +8,7 @@ The Restful PDF Metadata Updater takes advantage of the [_Google Books Dynamic L
 The script works by taking the PDF filename and user inputs and building an API call around it. It then parses the returned _JSON_ data and prompts the user for correctness. After this it overwrites the PDF's author, title, and moddate fields while retaining everything else.
 
 ## Usage
-```sh
+```
 useage: change-metadata.py -p PATH [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER]
 
 arguments:
