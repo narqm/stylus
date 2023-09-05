@@ -1,8 +1,9 @@
-from pypdf import PdfReader, PdfWriter
-from pathlib import Path
-from datetime import datetime
 import re
+from datetime import datetime
+from pypdf import PdfReader
+from pypdf import PdfWriter
 import requests
+from pathlib import Path
 import argparse
 import sys
 
@@ -16,6 +17,17 @@ class Metadata():
         self.file = file
         self.key = 0
     
+    def validate_file_path(self):
+        '''Checks if file path is valid and is a PDF.'''
+        test_file = Path(self.file)
+        if not Path.is_file(test_file):
+            print('This file doesn\'t exist. Please try again.')
+            sys.exit()
+        
+        if test_file.suffix != '.pdf':
+            print('Invalid file type. Only PDfs are accepted')
+            sys.exit()
+
     def build_api_request(self, author=''):
         '''Builds the GoogleBooks API call.'''
         file_name = Path(self.file).stem.lower()
@@ -85,25 +97,36 @@ class Metadata():
                 sys.exit()
             Metadata.confirm_info(self)
     
+    def extract_text(s):
+        '''Basic text extraction and cleaning.'''
+        pattern = r'b[\'"](.*)[\'"]'
+        matches = re.search(pattern, s.replace('\\x00', ''))
+        if matches:
+            return matches.group(1)
+        return s.replace('\\x00', '')
+
+    def _lists(self, outline_list, parent):
+        '''Recursively searches through outline lists 
+        and prints the title and page number.'''
+        for sub_sect in outline_list:
+            if isinstance(sub_sect, list):
+                Metadata._lists(self, sub_sect, child_parent)
+            else:
+                new_title = Metadata.extract_text(sub_sect['/Title'])
+                page_number = self.reader.get_destination_page_number(sub_sect)
+                child_parent = self.writer.add_outline_item(
+                    new_title, page_number, parent)
+
     def outline_rebuilder(self):
         '''Rebuilds the PDF's outline after cleaning up 
-            any possible string-encoding issues.'''
-        pattern = r'b[\'"](.*)[\'"]'
+            any possible string-encoding issues.'''   
         for outline in self.outlines:
             if isinstance(outline, list):
-                for sub_sect in outline:
-                    new_title = sub_sect['/Title'].replace('\\x00', '')
-                    matches = re.search(pattern, new_title)
-                    if matches:
-                        new_title = matches.group(1)
-                    page_number = self.reader.get_destination_page_number(sub_sect)
-                    self.writer.add_outline_item(title=new_title,
-                        page_number=page_number, parent=parent_obj)
+                Metadata._lists(self, outline, main_parent)
             else:
                 page_number = self.reader.get_destination_page_number(outline)
-                parent_obj = self.writer.add_outline_item(
-                    title=outline['/Title'], 
-                    page_number=page_number)
+                main_parent = self.writer.add_outline_item(
+                    outline['/Title'], page_number)
     
     def write_to_file(self, output='', outline_flag=False):
         '''Appends the metadata to a new file
@@ -170,6 +193,7 @@ if __name__ == '__main__':
 
     try:
         metadata = Metadata(file=pdf_file)
+        metadata.validate_file_path()
         metadata.build_api_request(author=pdf_author)
         metadata.call_api()
         metadata.format_info()
