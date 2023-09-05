@@ -22,7 +22,7 @@ arguments:
 ```
 
 The `path` field is the only one required to run, everything else is optional. However, the `author` field is recommended, as the API supports search by author. 
-The `-b` argument is an optional flag to call the `outline_rebuilder` method. This is to deal with string-encoding issues that can arise when `pypdf` reads PDFs with nested outlines (bookmarks). It currently supports outlines nested one element deep.
+The `-b` argument is an optional flag to call the `outline_rebuilder` method. This is to deal with string-encoding issues that can arise when `pypdf` reads PDFs with nested outlines (bookmarks).
 
 ## Example
 The following command will get the metadata for _Statistical Inference_ by George Casella.
