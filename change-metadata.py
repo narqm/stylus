@@ -27,6 +27,10 @@ class Metadata():
         if test_file.suffix != '.pdf':
             print('Invalid file type. Only PDfs are accepted')
             sys.exit()
+    
+    def format_api_text(name):
+        '''formats text for the Google Books api request'''
+        return name.replace(' ', '+').lower()
 
     def build_api_request(self, author=''):
         '''Builds the GoogleBooks API call.'''
@@ -34,14 +38,14 @@ class Metadata():
         if ',' in file_name:
             file_name = file_name.split(',')[0]
         
-        self.name = file_name.replace(' ', '+')
+        self.name = Metadata.format_api_text(file_name)
 
         self.url = 'https://www.googleapis.com/' \
                         f'books/v1/volumes?q={self.name}'
 
         if author is not None:
-            author = author.replace(' ', '+').lower()
-            self.url = f'{self.url}+inauthor:{author}'
+            author = Metadata.format_api_text(author)
+            self.url += f'+inauthor:{author}'
 
     def call_api(self):
         '''Sends a GET request to the API and returns results.'''
@@ -186,6 +190,8 @@ if __name__ == '__main__':
     pdf_file = Path(args.path)
     pdf_author = args.author
     file_output = args.output
+    if Path(file_output).suffix != '.pdf':
+        file_output += '.pdf'
     b_flag = args.debug_bookmark
 
     if pdf_file.suffix not in accepted_files:
