@@ -190,7 +190,7 @@ if __name__ == '__main__':
     pdf_file = Path(args.path)
     pdf_author = args.author
     file_output = args.output
-    if Path(file_output).suffix != '.pdf':
+    if (file_output is True) and (Path(file_output).suffix != '.pdf'):
         file_output += '.pdf'
     b_flag = args.debug_bookmark
 
