@@ -157,13 +157,11 @@ class Metadata():
             f"D\072%Y%m%d%H%M%S{utc_time}"
         )
 
-        self.writer.add_metadata(
-            {
+        self.writer.add_metadata({
                 '/Author': self.author,
                 '/Title': self.title,
                 '/ModDate': time
-            }
-        )
+            })
 
         if self.output is None:
             self.output = self.file
@@ -171,34 +169,47 @@ class Metadata():
         with open(self.output, 'wb') as file:
             self.writer.write(file)
 
-if __name__ == '__main__':
+def _check_input(input, accepted_files):
+    '''Checks if the input path has a valid extension.'''
+    if Path(input).suffix not in accepted_files:
+        raise ValueError(f'{input.stem} is not a valid file type.')
 
-    accepted_files = ['.pdf']
+def _check_output(output, accepted_files):
+    '''Checks if the output path has a correct
+      extension and adds it if it does not.'''
+    if (Path(output).suffix not in accepted_files):
+        output += '.pdf'
+        return output
+        
+def main():
+
+    accepted_files = ['.pdf', '.txt']
 
     parser = argparse.ArgumentParser()
+
     parser.add_argument('-p', '--path', type=str, action='store', 
-        help='The path of your PDF file')
+                        help='The path of your PDF file')
     parser.add_argument('-o', '--output', type=str, required=False,
-        help='Ouput path for your file')
+                        help='Ouput path for your file')
     parser.add_argument('-a', '--author', type=str, required=False,
-        help='Add author name to search term')
-    parser.add_argument('-b', '--debug_bookmark', 
-        required=False, action='store_true')
+                        help='Add author name to search term')
+    parser.add_argument('-b', '--debug_bookmark',required=False, 
+                        action='store_true')
     
     args = parser.parse_args()
 
-    pdf_file = Path(args.path)
+    pdf_file = args.path
     pdf_author = args.author
     file_output = args.output
-    if (file_output is True) and (Path(file_output).suffix != '.pdf'):
-        file_output += '.pdf'
     b_flag = args.debug_bookmark
 
-    if pdf_file.suffix not in accepted_files:
-        raise ValueError(f'{pdf_file.stem} is not a valid file type.')
+    _check_input(pdf_file, accepted_files)
+
+    if file_output is True:
+        file_output = _check_output(file_output, accepted_files)
 
     try:
-        metadata = Metadata(file=pdf_file)
+        metadata = Metadata(pdf_file)
         metadata.validate_file_path()
         metadata.build_api_request(author=pdf_author)
         metadata.call_api()
@@ -210,3 +221,6 @@ if __name__ == '__main__':
     except EOFError as e:
         print('Program aborted.')
         sys.exit()
+
+if __name__ == '__main__':
+    main()
