@@ -180,6 +180,16 @@ def _check_output(output, accepted_files):
     if (Path(output).suffix not in accepted_files):
         output += '.pdf'
         return output
+
+def _convert_to_list(text_file):
+    '''Converts a given .txt file to a list'''
+    with open(text_file, 'r') as file:
+        files = file.readlines()
+    
+    for num, file in enumerate(files):
+        files[num] = file.replace('\"', '').replace('\n', '')
+
+    return files
         
 def main():
 
@@ -198,29 +208,32 @@ def main():
     
     args = parser.parse_args()
 
-    pdf_file = args.path
+    pdf_file = [args.path]
     pdf_author = args.author
     file_output = args.output
     b_flag = args.debug_bookmark
 
-    _check_input(pdf_file, accepted_files)
-
     if file_output is True:
         file_output = _check_output(file_output, accepted_files)
 
-    try:
-        metadata = Metadata(pdf_file)
-        metadata.validate_file_path()
-        metadata.build_api_request(author=pdf_author)
-        metadata.call_api()
-        metadata.format_info()
-        metadata.confirm_info()
-        print("Writing metadata to file...")
-        metadata.write_to_file(output=file_output, outline_flag=b_flag)
-        print('PDF metadata successfully updated.')
-    except EOFError as e:
-        print('Program aborted.')
-        sys.exit()
+    if Path(*pdf_file).suffix == '.txt':
+        pdf_file = _convert_to_list(*pdf_file)
+
+    for each_pdf_file in pdf_file:
+        _check_input(each_pdf_file, accepted_files)
+        try:
+            metadata = Metadata(each_pdf_file)
+            metadata.validate_file_path()
+            metadata.build_api_request(author=pdf_author)
+            metadata.call_api()
+            metadata.format_info()
+            metadata.confirm_info()
+            print("Writing metadata to file...")
+            metadata.write_to_file(output=file_output, outline_flag=b_flag)
+            print('PDF metadata successfully updated.')
+        except EOFError as e:
+            print('Program aborted.')
+            sys.exit()
 
 if __name__ == '__main__':
     main()
