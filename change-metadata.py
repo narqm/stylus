@@ -169,15 +169,15 @@ class Metadata():
         with open(self.output, 'wb') as file:
             self.writer.write(file)
 
-def _check_input(input, accepted_files):
+def _check_input(input, accepted):
     '''Checks if the input path has a valid extension.'''
-    if Path(input).suffix not in accepted_files:
+    if Path(input).suffix not in accepted:
         raise ValueError(f'{input.stem} is not a valid file type.')
 
-def _check_output(output, accepted_files):
+def _check_output(output, accepted):
     '''Checks if the output path has a correct
       extension and adds it if it does not.'''
-    if (Path(output).suffix not in accepted_files):
+    if (Path(output).suffix not in accepted):
         output += '.pdf'
         return output
 
@@ -213,8 +213,8 @@ def main():
     file_output = args.output
     b_flag = args.debug_bookmark
 
-    if file_output is True:
-        file_output = _check_output(file_output, accepted_files)
+    if file_output:
+        file_output = _check_output(output=file_output, accepted=accepted_files)
 
     if Path(*pdf_file).suffix == '.txt':
         pdf_file = _convert_to_list(*pdf_file)
