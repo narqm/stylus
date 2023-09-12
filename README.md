@@ -29,3 +29,7 @@ The following command will get the metadata for _Statistical Inference_ by Georg
 ```sh
 python change-metadata.py -p "Statistical Inference.pdf" -o "C:\Users\user\Statistical Inference.pdf" -a "George Casella"
 ```
+If you want to edit a number of files at once, copy the file paths to a _.txt_ file and pass it like any other PDF.
+```sh
+python change-metadata.py -p "files_to_update.txt"
+```
