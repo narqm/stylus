@@ -84,13 +84,17 @@ class Metadata():
             check_author_names.append(part)
         self.author = ' '.join(check_author_names)
 
-    def confirm_info(self):
+    def confirm_info(self, suppress_confirm=False):
         '''Confirm if the metadata is correct.'''
         print(f'Found {self.title} by {self.author}.')
-        print('Is this information correct? Y[es]\\N[o].')
         
         accepted_responses = ['yes', 'y']
-        user_response = input('> ')
+
+        if suppress_confirm:
+            return
+        else:    
+            print('Is this information correct? [Y]es\\[N]o.')
+            user_response = input('> ')
 
         if user_response.lower() not in accepted_responses:
             self.key += 1
@@ -205,6 +209,8 @@ def main():
                         help='Add author name to search term')
     parser.add_argument('-b', '--debug_bookmark',required=False, 
                         action='store_true')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='Suppresses the user confirmation prompt.')
     
     args = parser.parse_args()
 
@@ -212,6 +218,7 @@ def main():
     pdf_author = args.author
     file_output = args.output
     b_flag = args.debug_bookmark
+    verbose_flag = args.verbose
 
     if file_output:
         file_output = _check_output(output=file_output, accepted=accepted_files)
@@ -227,7 +234,7 @@ def main():
             metadata.build_api_request(author=pdf_author)
             metadata.call_api()
             metadata.format_info()
-            metadata.confirm_info()
+            metadata.confirm_info(suppress_confirm=verbose_flag)
             print("Writing metadata to file...")
             metadata.write_to_file(output=file_output, outline_flag=b_flag)
             print('PDF metadata successfully updated.')
