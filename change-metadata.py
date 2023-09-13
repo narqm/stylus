@@ -209,7 +209,7 @@ def main():
                         help='Add author name to search term')
     parser.add_argument('-b', '--debug_bookmark',required=False, 
                         action='store_true')
-    parser.add_argument('-v', '--verbose', action='store_true',
+    parser.add_argument('-v', '--verbose', action='store_true', required=False,
                         help='Suppresses the user confirmation prompt.')
     
     args = parser.parse_args()
