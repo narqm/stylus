@@ -9,7 +9,7 @@ The script works by taking the PDF filename and user inputs and building an API 
 
 ## Usage
 ```
-useage: change-metadata.py -p PATH [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER]
+useage: change-metadata.py -p PATH [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-v VERBOSE]
 
 arguments:
 -p PATH,   --path PATH                  Your PDF's filepath
@@ -19,6 +19,8 @@ arguments:
                                           name for better search results.
 -b BOOKMARK PARSER, --debug_bookmark    Used for instances of erroneous values encoded
                                           in the new documents outline.
+-v VERBOSE, --verbose                   When called suppresses the metadata
+                                           confirmation prompt.
 ```
 
 The `path` field is the only one required to run, everything else is optional. However, the `author` field is recommended, as the API supports search by author. 
