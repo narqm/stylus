@@ -12,9 +12,10 @@ class Metadata():
     of a given file and returns search results.Then appends 
     metadata to a new file and overwrites erroneous fields.'''
 
-    def __init__(self, file):
+    def __init__(self, file, short_names=False):
         '''Initializes the class and sets file path and result key.'''
         self.file = file
+        self.short_names = short_names
         self.key = 0
     
     def validate_file_path(self):
@@ -46,12 +47,21 @@ class Metadata():
         if author is not None:
             author = Metadata.format_api_text(author)
             self.url += f'+inauthor:{author}'
+    
+    def check_api_status(self):
+        '''Checks if the URL is working.'''
+        if self.status_code != 200:
+            print(f'Error - Status Code {self.status_code}')
+            sys.exit()
 
     def call_api(self):
         '''Sends a GET request to the API and returns results.'''
         print(f'Sending request to {self.url}.')
 
         r = requests.get(self.url)
+        self.status_code = r.status_code
+        self.check_api_status()
+
         s = r.json()
 
         self.results = []
@@ -63,15 +73,32 @@ class Metadata():
     def format_info(self):
         '''Saves metadata to PDF.'''
         query = self.results[self.key]
-        api_authors = query['authors']
-        self.title = query['title']
+        try:
+            api_authors = query['authors']
+        except KeyError:
+            print('Out of results. Closing Program')
+            sys.exit()
+
+        self.title = ''
+        titles = query['title'].split(' ')
+        functors = ['To', 'The', 'A', 'Of', 'For']
+
+        for word in titles[:-1]:
+            if word in functors:
+                self.title += f'{word.lower()} '
+            else:
+                self.title += f'{word} '
+        self.title += titles[-1]
+
         self.author = ''
 
         if len(api_authors) > 1:
-            if len(api_authors) >= 3:
+            if self.short_names:
+                self.author = f'{api_authors[0]} and Others'
+            elif len(api_authors) >= 3:
                 for element in api_authors[:-1]:
                     self.author += f'{element}, '
-                self.author += f'and {api_authors[-1]}'      
+                self.author += f'and {api_authors[-1]}'
             else:
                 self.author = ' and '.join(api_authors)
         else:
@@ -99,7 +126,7 @@ class Metadata():
         if user_response.lower() not in accepted_responses:
             self.key += 1
             try:
-                Metadata.format_info(self)
+                self.format_info()
             except IndexError:
                 print('Out of results.')
                 sys.exit()
@@ -211,6 +238,8 @@ def main():
                         action='store_true')
     parser.add_argument('-v', '--verbose', action='store_true', required=False,
                         help='Suppresses the user confirmation prompt.')
+    parser.add_argument('-s', '--short_names', action='store_true', required=False,
+                        help='Shortens the author names to \"<first author> and Others\"')
     
     args = parser.parse_args()
 
@@ -219,6 +248,7 @@ def main():
     file_output = args.output
     b_flag = args.debug_bookmark
     verbose_flag = args.verbose
+    short_author_names = args.short_names
 
     if file_output:
         file_output = _check_output(output=file_output, accepted=accepted_files)
@@ -229,7 +259,7 @@ def main():
     for each_pdf_file in pdf_file:
         _check_input(each_pdf_file, accepted_files)
         try:
-            metadata = Metadata(each_pdf_file)
+            metadata = Metadata(each_pdf_file, short_author_names)
             metadata.validate_file_path()
             metadata.build_api_request(author=pdf_author)
             metadata.call_api()
