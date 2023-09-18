@@ -9,7 +9,7 @@ The script works by taking the PDF filename and user inputs and building an API 
 
 ## Usage
 ```
-useage: change-metadata.py -p PATH [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-v VERBOSE]
+useage: change-metadata.py -p PATH [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-v VERBOSE] [-s Shorten Authors]
 
 arguments:
 -p PATH,   --path PATH                  Your PDF's filepath
@@ -21,6 +21,8 @@ arguments:
                                           in the new documents outline.
 -v VERBOSE, --verbose                   When called suppresses the metadata
                                            confirmation prompt.
+-s Shorten Authors, --short_names       Only return the first author followed by
+                                           "and Others" when writing to file.
 ```
 
 The `path` field is the only one required to run, everything else is optional. However, the `author` field is recommended, as the API supports search by author. 
