@@ -210,7 +210,7 @@ def _check_output(output, accepted):
       extension and adds it if it does not.'''
     if (Path(output).suffix not in accepted):
         output += '.pdf'
-        return output
+    return output
 
 def _convert_to_list(text_file):
     '''Converts a given .txt file to a list'''
