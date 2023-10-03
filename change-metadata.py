@@ -33,7 +33,7 @@ class Metadata():
         '''formats text for the Google Books api request'''
         return name.replace(' ', '+').lower()
 
-    def build_api_request(self, author=''):
+    def build_api_request(self, author='', isbn=''):
         '''Builds the GoogleBooks API call.'''
         file_name = Path(self.file).stem.lower()
         if ',' in file_name:
@@ -47,6 +47,9 @@ class Metadata():
         if author is not None:
             author = Metadata.format_api_text(author)
             self.url += f'+inauthor:{author}'
+        
+        if isbn is not None:
+            self.url += f'+isbn:{isbn}'
     
     def check_api_status(self):
         '''Checks if the URL is working.'''
@@ -66,50 +69,62 @@ class Metadata():
 
         self.results = []
 
-        for num, _ in enumerate(s):
+        for num in range(len(s)-1):
             api_info = s['items'][num]['volumeInfo']
             self.results.append(api_info)
+
+    def format_author_names(self, authors):
+        '''Formats author names based on length.'''
+        if len(authors) > 1:        
+            if self.short_names:
+                self.author = f'{authors[0]} and Others'
+
+            elif len(authors) >= 3:
+                for element in authors[:-1]:
+                    self.author += f'{element}, '
+                self.author += f'and {authors[-1]}'
+
+            else: self.author = ' and '.join(authors)
+
+        else: self.author = authors[0]
     
+    def format_title(self, query):
+        '''Formats book title to handle grammatical functors.'''
+        functors = ['To', 'The', 'A', 'Of', 'For']
+        
+        titles = query['title'].split(' ')
+
+        self.title = ''
+        for word in titles[:-1]:
+            if word in functors:
+                self.title += f'{word.lower()} '
+            else: self.title += f'{word} '
+        self.title += titles[-1]
+    
+    def check_author_names(self):
+        '''Checks the formatting of author names for redundant characters.'''
+        check_author_names = []
+        for part in self.author.split(' '):
+            if len(part) <= 1: part += '.'
+            check_author_names.append(part)
+        self.author = ' '.join(check_author_names)
+
     def format_info(self):
         '''Saves metadata to PDF.'''
         query = self.results[self.key]
+
         try:
             api_authors = query['authors']
         except KeyError:
             print('Out of results. Closing Program')
             sys.exit()
 
-        self.title = ''
-        titles = query['title'].split(' ')
-        functors = ['To', 'The', 'A', 'Of', 'For']
-
-        for word in titles[:-1]:
-            if word in functors:
-                self.title += f'{word.lower()} '
-            else:
-                self.title += f'{word} '
-        self.title += titles[-1]
+        Metadata.format_title(self, query=query)
 
         self.author = ''
+        Metadata.format_author_names(self, authors=api_authors)
 
-        if len(api_authors) > 1:
-            if self.short_names:
-                self.author = f'{api_authors[0]} and Others'
-            elif len(api_authors) >= 3:
-                for element in api_authors[:-1]:
-                    self.author += f'{element}, '
-                self.author += f'and {api_authors[-1]}'
-            else:
-                self.author = ' and '.join(api_authors)
-        else:
-            self.author = api_authors[0]
-
-        check_author_names = []
-        for part in self.author.split(' '):
-            if len(part) <= 1:
-                part += '.'
-            check_author_names.append(part)
-        self.author = ' '.join(check_author_names)
+        Metadata.check_author_names(self)
 
     def confirm_info(self, suppress_confirm=False):
         '''Confirm if the metadata is correct.'''
@@ -234,21 +249,23 @@ def main():
                         help='Ouput path for your file')
     parser.add_argument('-a', '--author', type=str, required=False,
                         help='Add author name to search term')
-    parser.add_argument('-b', '--debug_bookmark',required=False, 
+    parser.add_argument('-b', '--bookmark',required=False, 
                         action='store_true')
     parser.add_argument('-v', '--verbose', action='store_true', required=False,
                         help='Suppresses the user confirmation prompt.')
     parser.add_argument('-s', '--short_names', action='store_true', required=False,
                         help='Shortens the author names to \"<first author> and Others\"')
+    parser.add_argument('-i', '--isbn', action='store', required=False, type=str)
     
     args = parser.parse_args()
 
     pdf_file = [args.path]
     pdf_author = args.author
     file_output = args.output
-    b_flag = args.debug_bookmark
+    bookmark_flag = args.bookmark
     verbose_flag = args.verbose
     short_author_names = args.short_names
+    isbn = args.isbn
 
     if file_output:
         file_output = _check_output(output=file_output, accepted=accepted_files)
@@ -261,12 +278,12 @@ def main():
         try:
             metadata = Metadata(each_pdf_file, short_author_names)
             metadata.validate_file_path()
-            metadata.build_api_request(author=pdf_author)
+            metadata.build_api_request(author=pdf_author, isbn=isbn)
             metadata.call_api()
             metadata.format_info()
             metadata.confirm_info(suppress_confirm=verbose_flag)
             print("Writing metadata to file...")
-            metadata.write_to_file(output=file_output, outline_flag=b_flag)
+            metadata.write_to_file(output=file_output, outline_flag=bookmark_flag)
             print('PDF metadata successfully updated.')
         except EOFError as e:
             print('Program aborted.')
