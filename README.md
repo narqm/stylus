@@ -9,10 +9,10 @@ The script works by taking the PDF filename and user inputs and building an API 
 
 ## Usage
 ```
-useage: change-metadata.py -p PATH [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-v VERBOSE] [-s Shorten Authors]
+useage: change-metadata.py -p PATH [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-v VERBOSE] [-s Shorten Authors] [-i ISNB]
 
 arguments:
--p PATH,   --path PATH                  Your PDF's filepath
+-p PATH, --path PATH                    Your PDF's filepath
 -o OUTPUT, --output OUTPUT              Desired output location of the updated PDF,
                                           writes to initial path if omitted
 -a AUTHOR NAME, --author                Optional argument to include the author's
@@ -23,6 +23,7 @@ arguments:
                                            confirmation prompt.
 -s Shorten Authors, --short_names       Only return the first author followed by
                                            "and Others" when writing to file.
+-i ISBN, --isbn                         Optional argument to search by ISBN-10/13.
 ```
 
 The `path` field is the only one required to run, everything else is optional. However, the `author` field is recommended, as the API supports search by author. 
