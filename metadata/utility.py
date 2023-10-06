@@ -54,9 +54,3 @@ class Utilities:
         files = [file.replace('\"', '').replace('\n', '') for file in files]
     
         return files
-
-# if __name__ == '__main__':
-#     utilities = Utilities()
-#     files = utilities.unpack_text_file('test.txt')
-
-#     print(files)
