@@ -40,7 +40,7 @@ The following command will get the metadata for _Statistical Inference_ by Georg
 python metadata "Statistical Inference.pdf" -o "C:\Users\user\Statistical Inference.pdf" -a "George Casella"
 ```
 Say you'd like to replace the cover page on your PDF too.
-```
+```sh
 python metadata passions.pdf -i 0300186339 -c -d
 ```
 If you want to edit a number of files at once, copy the file paths to a _.txt_ file and pass it like any other PDF.
