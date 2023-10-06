@@ -1,4 +1,5 @@
 from pathlib import Path
+from requests_html import HTMLSession
 import requests
 
 class GoogleBooksAPICall:
@@ -39,3 +40,44 @@ class GoogleBooksAPICall:
         if isbn: self.url += f'+isbn:{isbn}'
 
         return self.url
+
+class GenericAPICalls:
+    '''Generic API calls for hi-resolution bookcovers'''
+
+    def __init__(self, isbn):
+
+        self.url_apple = f'https://itunes.apple.com/lookup?isbn={isbn}'
+        self.url_google = f'https://books.google.com/books?vid=ISBN{isbn}' \
+                                '&printsec=frontcover'
+
+    def call_google_preview(self):
+        '''Sends a GET request to Google Books static link preview'''
+        session = HTMLSession()
+        print(f'Sending requests to {self.url_google}...')
+        r = session.get(self.url_google)
+
+        r.html.render(sleep=1)
+        print(f'Server returned a {r.status_code} status code.')
+
+        xpath = '//*[@id="viewport"]/div[1]/div/div/div[1]/div[2]/div/div[3]/img'
+        cover_page = r.html.xpath(xpath, first=True)
+        return cover_page.attrs['src']
+    
+    def call_itunes_api(self):
+        '''Sends a GET request to iTunes Search API'''
+        print(f'Sending requests to {self.url_apple}...')
+        r = requests.get(self.url_apple)
+        print(f'Server returned a {r.status_code} status code.')
+        s = r.json()
+
+        list_s = s['results'][0]['artworkUrl100'].split('/')
+        high_res = '/100000x100000bb.jpg'
+        return '/'.join(list_s[:-1]) + high_res
+    
+    @staticmethod
+    def download_image(url):
+        '''Download image from source'''
+        print(f'Getting book cover from: {url}')
+        r = requests.get(url)
+        with open('cover_page.jpg', 'wb') as file:
+            file.write(r.content)
