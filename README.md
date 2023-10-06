@@ -7,34 +7,43 @@ The Restful PDF Metadata Updater takes advantage of the [_Google Books Dynamic L
 
 The script works by taking the PDF filename and user inputs and building an API call around it. It then parses the returned _JSON_ data and prompts the user for correctness. After this it overwrites the PDF's author, title, and moddate fields while retaining everything else.
 
+It also now supports inserting or replacing a PDF cover pages using _Google Books Static Links_ and the [_iTunes Search API_](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/index.html) to get high resolution cover pages.
+
 ## Usage
 ```
-useage: change-metadata.py -p PATH [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-v VERBOSE] [-s Shorten Authors] [-i ISNB]
+useage: python metadata file [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-i ISNB] [-c ADD COVERPAGE] [-d DROP COVERPAGE]
 
 arguments:
--p PATH, --path PATH                    Your PDF's filepath
+file FILEPATH                           Your PDF's filepath
 -o OUTPUT, --output OUTPUT              Desired output location of the updated PDF,
                                           writes to initial path if omitted
 -a AUTHOR NAME, --author                Optional argument to include the author's
                                           name for better search results.
--b BOOKMARK PARSER, --debug_bookmark    Used for instances of erroneous values encoded
+-b BOOKMARK PARSER, --bookmark          Used for instances of erroneous values encoded
                                           in the new documents outline.
--v VERBOSE, --verbose                   When called suppresses the metadata
-                                           confirmation prompt.
--s Shorten Authors, --short_names       Only return the first author followed by
-                                           "and Others" when writing to file.
 -i ISBN, --isbn                         Optional argument to search by ISBN-10/13.
+-c ADD COVERPAGE, --change              Optional flag to search for and add a new          
+                                          cover page; requires ISBN to function. 
+-d DROP COVERPAGE, --drop               Optional flag to drop existing cover page;
+                                          requires ADD COVERPAGE to function.
 ```
 
-The `path` field is the only one required to run, everything else is optional. However, the `author` field is recommended, as the API supports search by author. 
-The `-b` argument is an optional flag to call the `outline_rebuilder` method. This is to deal with string-encoding issues that can arise when `pypdf` reads PDFs with nested outlines (bookmarks).
+The `author` and `isbn` fields are optional, but recommended, as the API supports both search by author and ISBN-10/13. But using them together isn't necessary or advisable since this could cause issues.
+
+Regarding the `--bookmark` argument, it's an optional flag to call the `rebuild_outline` method. This is to deal with string-encoding issues that can arise when `pypdf` reads PDFs with nested outlines (bookmarks). It will also make a noticable impact on performance, since it has to iterate through every bookmark to remove potential encoding issues.
+
+When inserting or replacing a cover page, the ISBN will determine where the script will try and find the image. For ISBN-13 it will default to the _iTunes Search API_, as they usually have higher resolution covers. But the selection of iBooks is severly limited, so the script may check _Google Books_ too. The _Google Books Static Links_ API is used for all ISBN-10's and the script will try and remove the watermark before inserting into your PDF.
 
 ## Example
 The following command will get the metadata for _Statistical Inference_ by George Casella.
 ```sh
-python change-metadata.py -p "Statistical Inference.pdf" -o "C:\Users\user\Statistical Inference.pdf" -a "George Casella"
+python metadata "Statistical Inference.pdf" -o "C:\Users\user\Statistical Inference.pdf" -a "George Casella"
+```
+Say you'd like to replace the cover page on your PDF too.
+```
+python metadata passions.pdf -i 0300186339 -c -d
 ```
 If you want to edit a number of files at once, copy the file paths to a _.txt_ file and pass it like any other PDF.
 ```sh
-python change-metadata.py -p "files_to_update.txt"
+python metadata files_to_update.txt
 ```
