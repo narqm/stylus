@@ -51,9 +51,8 @@ class FormatMetadata:
     def confirm_metadata(self, author, title):
         '''Confirm if given metadata is correct'''
         accepted_resp = ['yes', 'y']
-        print('Found \"{title}\" by {author}'.format(title=title, author=author),
-              '\nConfirm if this is correct.')
-        confirm = input('> ').lower()
+        print('Found \"{title}\" by {author}'.format(title=title, author=author))
+        confirm = input('Is this ok? (y/n) ').lower()
 
         if confirm not in accepted_resp:
             try: self.format_metadata()

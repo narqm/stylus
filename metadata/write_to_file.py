@@ -1,6 +1,7 @@
-from pypdf import PdfReader, PdfWriter
-from datetime import datetime
 from utility import RebuildOutline
+from datetime import datetime
+from pypdf import PdfReader
+from os import remove
 
 class Write:
     '''Writes metadata to PDF'''
@@ -40,6 +41,8 @@ class Write:
         with open('cover_page.pdf', 'rb') as f:
             creader = PdfReader(f)
             self.writer.insert_page(creader.pages[0], index=0)
+        
+        remove('cover_page.pdf')
 
     def write_to_file(self, output=None, insert_cover=False, rebuild_outline_flag=False):
         '''Writes new metadata to file'''
