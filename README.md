@@ -9,9 +9,23 @@ The script works by taking the PDF filename and user inputs and building an API 
 
 It also now supports inserting or replacing a PDF cover pages using _Google Books Static Links_ and the [_iTunes Search API_](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/index.html) to get high resolution cover pages.
 
+## Installation
+This script requires Python 3 to run, you can get it [here](https://www.python.org/downloads/).
+
+Run this if git is installed on your computer:
+```sh
+git clone https://github.com/bremixx/RESTful-PDF-Metadata-Updater.git
+cd RESTful-PDF-Metadata-Updater
+```
+Alternatively, click on `Code > Download ZIP` and unzip the source files to a directory.
+The script requires a number of dependencies. Install them by running:
+```sh
+pip install -r requirements.txt
+```
+
 ## Usage
 ```
-useage: python metadata file [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-i ISNB] [-c ADD COVERPAGE] [-d DROP COVERPAGE]
+useage: python metadata file [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-i ISNB] [-c ADD COVERPAGE] [-d DROP COVERPAGE] [-l LOCAL IMAGE]
 
 arguments:
 file FILEPATH                           Your PDF's filepath
@@ -22,10 +36,12 @@ file FILEPATH                           Your PDF's filepath
 -b BOOKMARK PARSER, --bookmark          Used for instances of erroneous values encoded
                                           in the new documents outline.
 -i ISBN, --isbn                         Optional argument to search by ISBN-10/13.
--c ADD COVERPAGE, --change              Optional flag to search for and add a new          
+-c ADD COVER PAGE, --change              Optional flag to search for and add a new          
                                           cover page; requires ISBN to function. 
--d DROP COVERPAGE, --drop               Optional flag to drop existing cover page;
-                                          requires ADD COVERPAGE to function.
+-d DROP COVER PAGE, --drop               Optional flag to drop existing cover page;
+                                          requires ADD COVER PAGE to function.
+-l LOCAL IMAGE, --local                  Option to add a local image as cover page,
+                                          requires the ADD COVER PAGE flag to be set.
 ```
 
 The `author` and `isbn` fields are optional, but recommended, as the API supports both search by author and ISBN-10/13. But using them together isn't necessary or advisable since this could cause issues.
