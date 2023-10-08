@@ -16,13 +16,14 @@ def main():
     parser.add_argument('-i', '--isbn', type=str, help='Option to search by ISBN')
     parser.add_argument('-c', '--change', action='store_true', help='Changes file cover page')
     parser.add_argument('-d', '--drop', action='store_true', help='Drops PDF cover page')
-    parser.add_argument('-b', '--bookmark', action='store_true', 
-                        help='Flag to reconstruct PDF outline')
+    parser.add_argument('-b', '--bookmark', action='store_true', help='Flag to reconstruct PDF outline')
+    parser.add_argument('-l', '--local', help='Use a local image file for PDF cover page')
 
     args = parser.parse_args()
     
-    if args.change: assert args.isbn is not None, 'ISBN required to change PDF cover page'
+    # if args.change: assert args.isbn is not None, 'ISBN required to change PDF cover page'
     if args.drop: assert args.change is True, '-c required when dropping cover page'
+    if args.local: assert args.change is not None, '--change flag is required'
 
     if args.isbn is None:
         isbn = ''
@@ -39,7 +40,7 @@ def main():
         api_call = GoogleBooksAPICall(file)
         url = api_call.build_api_request(args.author, isbn)
 
-        api_call.call_api(url, output='results.json')
+        # api_call.call_api(url, output='results.json')
 
         _format = FormatMetadata()
         _format.format_metadata()
@@ -47,11 +48,14 @@ def main():
 
         if args.change:
             convert = Convert()
-            gap = GenericAPICalls(isbn)    
-            if len(isbn) < 13:
+            gap = GenericAPICalls(isbn)
+            if 10 < len(isbn) < 13:
                 source = gap.call_google_preview()
                 gap.download_image(source)
                 convert.remove_watermark()
+            elif args.local is not None:
+                print(args.local)
+                convert.import_image(args.local)
             else:
                 try:
                     source = gap.call_itunes_api()

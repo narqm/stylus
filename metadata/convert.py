@@ -2,6 +2,7 @@ from img2pdf import convert
 from os import remove
 import cv2 as cv
 import numpy as np
+from shutil import copy
 
 class Convert:
     '''Converts cover_page.jpg to PDF'''
@@ -21,6 +22,12 @@ class Convert:
 
         dst = cv.inpaint(img, mask, 3, cv.INPAINT_TELEA)
         cv.imwrite('cover_page.jpg', dst)
+    
+    @staticmethod
+    def import_image(image):
+        '''Copies a given image for use by the other methods'''
+        assert image.endswith('.jpg'), 'Image file needs to be .jpg'
+        copy(image, 'cover_page.jpg')
 
     @staticmethod
     def convert_to_pdf():
