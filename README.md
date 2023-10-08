@@ -9,7 +9,7 @@ The script works by taking the PDF filename and user inputs and building an API 
 
 It also now supports inserting or replacing a PDF cover pages using _Google Books Static Links_ and the [_iTunes Search API_](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/index.html) to get high resolution cover pages.
 
-## Installation
+### Installation
 This script requires Python 3 to run, you can get it [here](https://www.python.org/downloads/).
 
 Run this if git is installed on your computer:
@@ -23,7 +23,7 @@ The script requires a number of dependencies. Install them by running:
 pip install -r requirements.txt
 ```
 
-## Usage
+### Usage
 ```
 useage: python metadata file [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-i ISNB] [-c ADD COVERPAGE] [-d DROP COVERPAGE] [-l LOCAL IMAGE]
 
@@ -50,7 +50,7 @@ Regarding the `--bookmark` argument, it's an optional flag to call the `rebuild_
 
 When inserting or replacing a cover page, the ISBN will determine where the script will try and find the image. For ISBN-13 it will default to the _iTunes Search API_, as they usually have higher resolution covers. But the selection of iBooks is severly limited, so the script may check _Google Books_ too. The _Google Books Static Links_ API is used for all ISBN-10's and the script will try and remove the watermark before inserting into your PDF.
 
-## Example
+### Example
 The following command will get the metadata for _Statistical Inference_ by George Casella.
 ```sh
 python metadata "Statistical Inference.pdf" -o "C:\Users\user\Statistical Inference.pdf" -a "George Casella"
