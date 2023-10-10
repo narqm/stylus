@@ -21,7 +21,7 @@ def main():
 
     args = parser.parse_args()
     
-    # if args.change: assert args.isbn is not None, 'ISBN required to change PDF cover page'
+    if args.change and args.local is None: assert args.isbn is not None, 'ISBN required to change PDF cover page'
     if args.drop: assert args.change is True, '-c required when dropping cover page'
     if args.local: assert args.change is not None, '--change flag is required'
 
@@ -40,7 +40,7 @@ def main():
         api_call = GoogleBooksAPICall(file)
         url = api_call.build_api_request(args.author, isbn)
 
-        # api_call.call_api(url, output='results.json')
+        api_call.call_api(url, output='results.json')
 
         _format = FormatMetadata()
         _format.format_metadata()
@@ -54,7 +54,7 @@ def main():
                 gap.download_image(source)
                 convert.remove_watermark()
             elif args.local is not None:
-                print(args.local)
+                print(f'Importing cover page from {args.local}')
                 convert.import_image(args.local)
             else:
                 try:
