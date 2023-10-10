@@ -36,7 +36,7 @@ class GoogleBooksAPICall:
         
         if author: 
             author = author.replace(' ', '+').lower()
-            self.url =+ f'+inauthor:{author}'
+            self.url += f'+inauthor:{author}'
         if isbn: self.url += f'+isbn:{isbn}'
 
         return self.url
