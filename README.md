@@ -36,11 +36,11 @@ file FILEPATH                           Your PDF's filepath
 -b BOOKMARK PARSER, --bookmark          Used for instances of erroneous values encoded
                                           in the new documents outline.
 -i ISBN, --isbn                         Optional argument to search by ISBN-10/13.
--c ADD COVER PAGE, --change              Optional flag to search for and add a new          
+-c ADD COVER PAGE, --change             Optional flag to search for and add a new          
                                           cover page; requires ISBN to function. 
--d DROP COVER PAGE, --drop               Optional flag to drop existing cover page;
+-d DROP COVER PAGE, --drop              Optional flag to drop existing cover page;
                                           requires ADD COVER PAGE to function.
--l LOCAL IMAGE, --local                  Option to add a local image as cover page,
+-l LOCAL IMAGE, --local                 Option to add a local image as cover page,
                                           requires the ADD COVER PAGE flag to be set.
 ```
 
