@@ -5,7 +5,7 @@ A simple command line PDF metadata editor that pulls info from the Google Books 
 
 The Restful PDF Metadata Updater takes advantage of the [_Google Books Dynamic Links_](https://developers.google.com/books/docs/dynamic-links) API, which in their own words, "allows you to create more customizable, reliable links to Google Books."
 
-The script works by taking the PDF filename and user inputs and building an API call around it. It then parses the returned _JSON_ data and prompts the user for correctness. After this it overwrites the PDF's author, title, and moddate fields while retaining everything else.
+The script works by taking the PDF filename and user inputs and building an API call around it. It then parses the returned JSON data and prompts the user for correctness. After this it overwrites the PDF's author, title, and moddate fields while retaining everything else.
 
 It also now supports inserting or replacing a PDF cover pages using _Google Books Static Links_ and the [_iTunes Search API_](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/index.html) to get high resolution cover pages.
 
