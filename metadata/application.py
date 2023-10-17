@@ -1,6 +1,6 @@
 from pypdf import PdfReader, PdfWriter
 from api_call import GoogleBooksAPICall, GenericAPICalls
-from format_metadata import FormatMetadata
+from format_metadata import FormatMetadata, DirectInput
 from write_to_file import Write
 from utility import Utilities
 from convert import Convert
@@ -18,6 +18,7 @@ def main():
     parser.add_argument('-d', '--drop', action='store_true', help='Drops PDF cover page')
     parser.add_argument('-b', '--bookmark', action='store_true', help='Flag to reconstruct PDF outline')
     parser.add_argument('-l', '--local', help='Use a local image file for PDF cover page')
+    parser.add_argument('-m', '--manual', action='store_true', help='Manualy enter PDF metadata')
 
     args = parser.parse_args()
     
@@ -37,14 +38,18 @@ def main():
     else: file = [args.file]
 
     for file in file:
-        api_call = GoogleBooksAPICall(file)
-        url = api_call.build_api_request(args.author, isbn)
+        
+        if args.manual:
+            metadata = DirectInput.user_metadata_prompt()
+        else:
+            api_call = GoogleBooksAPICall(file)
+            url = api_call.build_api_request(args.author, isbn)
 
-        api_call.call_api(url, output='results.json')
+            api_call.call_api(url, output='results.json')
 
-        _format = FormatMetadata()
-        _format.format_metadata()
-        metadata = _format.metadata()
+            _format = FormatMetadata()
+            _format.format_metadata()
+            metadata = _format.metadata()
 
         if args.change:
             convert = Convert()

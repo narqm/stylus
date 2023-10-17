@@ -8,7 +8,7 @@ class FormatMetadata:
                 'their', 'this', 'that', 'these', 'those', 'what', 
                 'which', 'who', 'there', 'can', 'will', 'should', 
                 'would', 'must', 'may', 'might', 'could', 'not', 
-                'no', 'to']
+                'no', 'to', 'of']
 
     edition = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 
                'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth', 
@@ -70,3 +70,13 @@ class FormatMetadata:
     def metadata(self):
         '''Returns accepted metadata in a tuple'''
         return self.author, self.title
+
+class DirectInput:
+    '''Allows users to directly enter metadata'''
+
+    @staticmethod
+    def user_metadata_prompt():
+        '''Prompts user input for PDF author and title'''
+        print('Add the PDF author and title as comma separated values.')
+        metadata = input('author, title: ').split(',', maxsplit=1)
+        return tuple(m.strip() for m in metadata)
