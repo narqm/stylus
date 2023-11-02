@@ -22,13 +22,8 @@ def main():
 
     args = parser.parse_args()
     
-    if args.change and args.local is None: assert args.isbn is not None, 'ISBN required to change PDF cover page'
     if args.drop: assert args.change is True, '-c required when dropping cover page'
     if args.local: assert args.change is not None, '--change flag is required'
-
-    if args.isbn is None:
-        isbn = ''
-    else: isbn = args.isbn
 
     if args.file.endswith('.txt'):
         assert args.isbn is None, 'ISBN search not supported for .txt'
@@ -36,6 +31,8 @@ def main():
         utility = Utilities()
         file = utility.unpack_text_file(args.file)
     else: file = [args.file]
+
+    isbn = args.isbn if args.isbn else ''
 
     for file in file:
         
@@ -52,6 +49,9 @@ def main():
             metadata = _format.metadata()
 
         if args.change:
+
+            isbn = isbn if args.isbn else metadata[2]
+
             convert = Convert()
             gap = GenericAPICalls(isbn)
             if 10 < len(isbn) < 13:
