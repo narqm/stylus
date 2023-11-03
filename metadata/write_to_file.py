@@ -1,6 +1,7 @@
 from utility import RebuildOutline
+from pypdf import PdfReader, Transformation
+from pypdf.generic import RectangleObject
 from datetime import datetime
-from pypdf import PdfReader
 from os import remove
 
 class Write:
@@ -29,6 +30,37 @@ class Write:
         rb = RebuildOutline(self.reader, self.writer)
         rb.rebuild_outline(outlines=self.reader.outline)
     
+    @staticmethod
+    def get_page_dimensions(reader_object, replace_cover=False):
+        '''Get first page height x width attributes'''
+        if replace_cover:
+            box = reader_object.pages[1].mediabox
+        else:
+            box = reader_object.pages[0].mediabox
+        return box
+
+    @staticmethod
+    def resize_page(page, reference):
+        '''Resize the page mediabox to reference page'''
+        page.mediabox = RectangleObject(
+            (reference[0], reference[1], reference[2], reference[3]))
+
+    def transform_page_cover(self, page):
+        '''Scales cover page dimensions to original document'''
+        box = self.get_page_dimensions(page)
+        ref_box = self.get_page_dimensions(self.reader, 
+            replace_cover=self.replace)
+        
+        height, width = ref_box.height, ref_box.width
+        height_scale = height / box.height
+        width_scale = width / box.width
+
+        scale = Transformation().scale(sx=width_scale, sy=height_scale)
+        print(f'Vertical Scale: {height_scale}, Horizontal Scale: {width_scale}')
+        page.pages[0].add_transformation(scale)
+
+        self.resize_page(page.pages[0], ref_box)
+
     def insert_new_cover(self, replace_cover=False):
         '''Adds a new book cover to PDF'''
         if replace_cover: 
@@ -40,6 +72,7 @@ class Write:
             self.writer.add_metadata(self.reader.metadata)
         with open('cover_page.pdf', 'rb') as f:
             creader = PdfReader(f)
+            self.transform_page_cover(creader)
             self.writer.insert_page(creader.pages[0], index=0)
         
         remove('cover_page.pdf')
