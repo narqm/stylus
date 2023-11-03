@@ -1,5 +1,6 @@
 from pathlib import Path
 import json
+import sys
 
 class FormatMetadata:
     '''Formats metadata for grammatical consistancy'''
@@ -47,13 +48,17 @@ class FormatMetadata:
             subtitle = self.std_title(current['subtitle'])
             title += ': {value}'.format(value=subtitle)
         
-        if len(current['authors']) == 3:
-            author = ', '.join(current['authors'][:-1]) + ', and ' + current['authors'][-1]
-        elif len(current['authors']) == 1: 
-            author = current['authors'][0]
-        elif len(current['authors']) >= 4: 
-            author = current['authors'][0] + ' and Others'
-        else: author = current['authors'][0] + ' and ' + current['authors'][-1]
+        if current.get('authors'):
+            if len(current['authors']) == 3:
+                author = ', '.join(current['authors'][:-1]) + ', and ' + current['authors'][-1]
+            elif len(current['authors']) == 1: 
+                author = current['authors'][0]
+            elif len(current['authors']) >= 4: 
+                author = current['authors'][0] + ' and Others'
+            else: author = current['authors'][0] + ' and ' + current['authors'][-1]
+        else:
+            print('No author data on file...')
+            author, _ = DirectInput.user_metadata_prompt()
 
         self.get_isbn(current)
 
@@ -72,7 +77,7 @@ class FormatMetadata:
         if confirm not in accepted_resp:
             try: self.format_metadata()
             except StopIteration:
-                print('Out of results')
+                sys.exit('Out of results')
         else: self.author, self.title = author, title
     
     def metadata(self):
