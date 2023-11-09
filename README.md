@@ -25,8 +25,8 @@ pip install -r requirements.txt
 
 ## Usage
 ```
-useage: python metadata file [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-i ISNB] [-c ADD COVERPAGE]
-          [-d DROP COVERPAGE] [-l LOCAL IMAGE] [-m MANUAL ENTRY]
+useage: python metadata file [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-i ISNB]
+          [-c ADD COVERPAGE] [-d DROP COVERPAGE] [-l LOCAL IMAGE] [-m MANUAL ENTRY]
 
 arguments:
 file FILEPATH                           Your PDF's filepath
