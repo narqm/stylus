@@ -29,13 +29,13 @@ class FormatMetadata:
     
     def std_title(self, title):
         '''Modifies variable str to check grammatical functors'''
-        format_title = [title.split(' ')[0]]
+        format_title = [title.split(' ')[0].capitalize()]
         for word in title.split(' ')[1:]:
             if word.lower() in self.functors:
                 format_title.append(word.lower())
             elif word.lower() in self.edition:
                 format_title.append(word.capitalize())
-            else: format_title.append(word)
+            else: format_title.append(word.capitalize())
         
         return ' '.join(format_title)
 

@@ -55,10 +55,9 @@ class GenericAPICalls:
         session = HTMLSession()
         print(f'Sending requests to {self.url_google}...')
         r = session.get(self.url_google)
-
         r.html.render(sleep=1)
-        print(f'Server returned a {r.status_code} status code.')
-
+        
+        print(r.raise_for_status())
         xpath = '//*[@id="viewport"]/div[1]/div/div/div[1]/div[2]/div/div[3]/img'
         cover_page = r.html.xpath(xpath, first=True)
         return cover_page.attrs['src']
@@ -67,7 +66,7 @@ class GenericAPICalls:
         '''Sends a GET request to iTunes Search API'''
         print(f'Sending requests to {self.url_apple}...')
         r = requests.get(self.url_apple)
-        print(f'Server returned a {r.status_code} status code.')
+        print(r.raise_for_status())
         s = r.json()
 
         list_s = s['results'][0]['artworkUrl100'].split('/')
