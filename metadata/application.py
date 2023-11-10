@@ -1,14 +1,15 @@
+from argparse import ArgumentParser
 from pypdf import PdfReader, PdfWriter
 from api_call import GoogleBooksAPICall, GenericAPICalls
 from format_metadata import FormatMetadata, DirectInput
 from write_to_file import Write
 from utility import Utilities
 from convert import Convert
-import argparse
+import sys
 
 def main():
     
-    parser = argparse.ArgumentParser()
+    parser = ArgumentParser()
 
     parser.add_argument('file', nargs='?', help='PDF file to modify')
     parser.add_argument('-o', '--output', help='Where to save the modified PDF')
@@ -52,24 +53,28 @@ def main():
 
             isbn = isbn if args.isbn else metadata[2]
 
-            convert = Convert()
             gap = GenericAPICalls(isbn)
-            if 10 < len(isbn) < 13:
-                source = gap.call_google_preview()
-                gap.download_image(source)
-                convert.remove_watermark()
-            elif args.local is not None:
+            if 10 == len(isbn):
+                try:
+                    Utilities.generic_api_handling(
+                        gap.call_google_preview, copyright=True)
+                except AttributeError:
+                    print(f'Unable to find cover for {metadata[1]}.')
+                    sys.exit()
+            elif args.local:
                 print(f'Importing cover page from {args.local}')
-                convert.import_image(args.local)
+                Convert.import_image(args.local)
+                Convert.convert_to_pdf()
             else:
                 try:
-                    source = gap.call_itunes_api()
-                    gap.download_image(source)
-                except:
-                    source = gap.call_google_preview()
-                gap.download_image(source)
-                convert.remove_watermark()
-            convert.convert_to_pdf()
+                    Utilities.generic_api_handling(gap.call_itunes_api)
+                except AttributeError:
+                    try:
+                        Utilities.generic_api_handling(gap.call_google_preview, 
+                            copyright=True)
+                    except AttributeError:
+                        print(f'Unable to find cover for {metadata[1]}.')
+                        sys.exit()
 
         reader = PdfReader(file)
         writer = PdfWriter()

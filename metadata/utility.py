@@ -1,3 +1,5 @@
+from api_call import GenericAPICalls
+from convert import Convert
 from pathlib import Path
 import re
 
@@ -54,3 +56,11 @@ class Utilities:
         files = [file.replace('\"', '').replace('\n', '') for file in files]
     
         return files
+    
+    @staticmethod
+    def generic_api_handling(api, copyright=False):
+        '''Generic function for downloading and converting images.'''
+        source = api()
+        GenericAPICalls.download_image(source)
+        if copyright: Convert.remove_watermark()
+        Convert.convert_to_pdf()

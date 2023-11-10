@@ -35,7 +35,9 @@ class FormatMetadata:
                 format_title.append(word.lower())
             elif word.lower() in self.edition:
                 format_title.append(word.capitalize())
-            else: format_title.append(word.capitalize())
+            elif title.isupper():
+                format_title.append(word.capitalize())
+            else: format_title.append(word)
         
         return ' '.join(format_title)
 

@@ -22,11 +22,7 @@ class Write:
     
     def call_rb(self, append=False):
         '''Calls utility.RebuildOutline on reader/writer object'''
-        if append: 
-            self.writer.append(self.input, import_outline=False)
-        else: 
-            try: self.writer.add_metadata(self.reader)
-            except: print('Error: File is missing data.')
+        if append: self.writer.append(self.input, import_outline=False)
         rb = RebuildOutline(self.reader, self.writer)
         rb.rebuild_outline(outlines=self.reader.outline)
     
