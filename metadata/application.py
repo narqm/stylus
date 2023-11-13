@@ -52,25 +52,26 @@ def main():
         if args.change:
 
             isbn = isbn if args.isbn else metadata[2]
+            preview_url = metadata[3]
 
-            gap = GenericAPICalls(isbn)
-            if 10 == len(isbn):
-                try:
-                    Utilities.generic_api_handling(
-                        gap.call_google_preview, copyright=True)
-                except AttributeError:
-                    print(f'Unable to find cover for {metadata[1]}.')
-                    sys.exit()
-            elif args.local:
+            gap = GenericAPICalls(isbn=isbn, thumbnail=preview_url)
+            if args.local:
                 print(f'Importing cover page from {args.local}')
                 Convert.import_image(args.local)
                 Convert.convert_to_pdf()
+            elif 10 == len(isbn):
+                try:
+                    Utilities.generic_api_handling(
+                        gap.call_google_api, copyright=True)
+                except AttributeError:
+                    print(f'Unable to find cover for {metadata[1]}.')
+                    sys.exit()
             else:
                 try:
                     Utilities.generic_api_handling(gap.call_itunes_api)
                 except AttributeError:
                     try:
-                        Utilities.generic_api_handling(gap.call_google_preview, 
+                        Utilities.generic_api_handling(gap.call_google_api, 
                             copyright=True)
                     except AttributeError:
                         print(f'Unable to find cover for {metadata[1]}.')

@@ -25,6 +25,8 @@ class FormatMetadata:
 
         self.isbn_10, self.isbn_13 = '', ''
 
+        self.thumbnail = ''
+
         self.volume_info = (values['volumeInfo'] for values in self.data['items'])
     
     def std_title(self, title):
@@ -62,6 +64,8 @@ class FormatMetadata:
             print('No author data on file...')
             author, _ = DirectInput.user_metadata_prompt()
 
+        self.get_thumbnail(current)
+        
         self.get_isbn(current)
 
         self.confirm_metadata(author, title)
@@ -69,6 +73,12 @@ class FormatMetadata:
     def get_isbn(self, current):
         '''Obtains the ISBN-13 value from JSON'''
         self.isbn_13 = current['industryIdentifiers'][0]['identifier']
+    
+    def get_thumbnail(self, current):
+        '''Grabs current selection thumbnail image link from JSON'''
+        if current['imageLinks'].get('thumbnail'):
+            self.thumbnail = current['imageLinks']['thumbnail']
+        else: self.thumbnail = None
 
     def confirm_metadata(self, author, title):
         '''Confirm if given metadata is correct'''
@@ -84,7 +94,7 @@ class FormatMetadata:
     
     def metadata(self):
         '''Returns accepted metadata in a tuple'''
-        return self.author, self.title, self.isbn_13
+        return self.author, self.title, self.isbn_13, self.thumbnail
 
 class DirectInput:
     '''Allows users to directly enter metadata'''

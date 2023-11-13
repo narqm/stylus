@@ -44,8 +44,10 @@ class GoogleBooksAPICall:
 class GenericAPICalls:
     '''Generic API calls for hi-resolution bookcovers'''
 
-    def __init__(self, isbn):
+    def __init__(self, isbn, thumbnail):
 
+        self.google_thumbnail = thumbnail
+        
         self.url_apple = f'https://itunes.apple.com/lookup?isbn={isbn}'
         self.url_google = f'https://books.google.com/books?vid=ISBN{isbn}' \
                                 '&printsec=frontcover'
@@ -60,6 +62,14 @@ class GenericAPICalls:
         xpath = '//*[@id="viewport"]/div[1]/div/div/div[1]/div[2]/div/div[3]/img'
         cover_page = r.html.xpath(xpath, first=True)
         return cover_page.attrs['src']
+    
+    def call_google_api(self):
+        '''Sends a GET request for Google Books static link thumbnail url'''
+        assert self.google_thumbnail is not None, 'Missing thumbnail link!'
+        # data['items'][0]['volumeInfo']['imageLinks']['thumbnail']
+        url = self.google_thumbnail.split('&', 1)[0] + '&printsec=frontcover&' \
+            'img=0&zoom=0&edge=curl&source=gbs_api'
+        return url
     
     def call_itunes_api(self):
         '''Sends a GET request to iTunes Search API'''
