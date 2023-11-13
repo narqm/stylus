@@ -66,7 +66,6 @@ class GenericAPICalls:
     def call_google_api(self):
         '''Sends a GET request for Google Books static link thumbnail url'''
         assert self.google_thumbnail is not None, 'Missing thumbnail link!'
-        # data['items'][0]['volumeInfo']['imageLinks']['thumbnail']
         url = self.google_thumbnail.split('&', 1)[0] + '&printsec=frontcover&' \
             'img=0&zoom=0&edge=curl&source=gbs_api'
         return url
