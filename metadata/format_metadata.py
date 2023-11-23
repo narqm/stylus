@@ -64,7 +64,10 @@ class FormatMetadata:
             print('No author data on file...')
             author, _ = DirectInput.user_metadata_prompt()
 
-        self.get_thumbnail(current)
+        try:
+            self.get_thumbnail(current)
+        except KeyError as ke:
+            print(f'{ke} - preview link is missing')
         
         self.get_isbn(current)
 

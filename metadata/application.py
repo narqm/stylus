@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from pypdf import PdfReader, PdfWriter
 from api_call import GoogleBooksAPICall, GenericAPICalls
 from format_metadata import FormatMetadata, DirectInput
+from epub import EpubReader
 from write_to_file import Write
 from utility import Utilities
 from convert import Convert
@@ -48,6 +49,13 @@ def main():
             _format = FormatMetadata()
             _format.format_metadata()
             metadata = _format.metadata()
+
+        if file.endswith('.epub'):
+            assert args.change is not None, 'This file type doesn\'t support this action'
+
+            epubreader = EpubReader(file, args.output)
+            epubreader.update_metadata(author=[metadata[0]], title=metadata[1])
+            sys.exit()
 
         if args.change:
 

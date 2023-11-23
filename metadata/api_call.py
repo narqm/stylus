@@ -4,12 +4,13 @@ import requests
 
 class GoogleBooksAPICall:
     '''Builds a Dynamic Link and sends it to Google Books'''
-    __slots__ = 'file', 'name', 'author', 'isbn', 'url', 'output'
+    __slots__ = 'file', 'name', 'author', 'isbn', 'url', 'output', 'accepted_file_types'
 
     def __init__(self, file):
         self.file = Path(file)
+        accepted_file_types = ['.pdf', '.epub']
         assert Path.is_file(self.file), 'File path must be valid'
-        assert Path(self.file).suffix == '.pdf', 'Error - Invalid file type'
+        assert Path(self.file).suffix in accepted_file_types, 'Error - Invalid file type'
 
     @staticmethod
     def call_api(url, output):
