@@ -1,15 +1,17 @@
+from os import remove
 from xml.etree import ElementTree as ET
 from zipfile import ZipFile
 
 class EpubReader:
 
-    def __init__(self, epub, output=None):
+    def __init__(self, epub, output=None, replace_cover_file=False):
         
         if output is None: 
             self.output = epub
         else: self.output = output
         self.epub_zip = ZipFile(epub, 'r')
         self.epub = epub
+        self.replace = replace_cover_file
     
     def contents(self):
         '''Returns contents of the content.opf metadata file'''
@@ -48,7 +50,11 @@ class EpubReader:
         '''Creates a copy epub without content.opf'''
 
         all_files = self.epub_zip.namelist()
-        files_to_copy = [file for file in all_files if file != 'content.opf']
+        
+        if not self.replace:
+            files_to_copy = [file for file in all_files if file != 'content.opf']
+        else:
+            files_to_copy = [file for file in all_files if file not in ['content.opf', 'cover.jpeg']]
 
         with ZipFile(self.output, 'w') as new_zip:
 
@@ -72,6 +78,17 @@ class EpubReader:
                 zip_ref.writestr('content.opf', update_content)
             
             print('Epub metadata successfully updated.')
+    
+    def replace_epub_cover(self):
+        '''Replace cover.jpeg with a new image'''
+        with open('cover_page.jpg', 'rb') as img:
+            img_binary = img.read()
+
+        with ZipFile(self.output, 'a') as zip_ref:
+            zip_ref.writestr('cover.jpeg', img_binary)
+        
+        print('Epub cover.jpeg has been changed.')
+        remove('cover_page.jpg')
             
     def __del__(self):
         self.epub_zip.close()

@@ -58,9 +58,10 @@ class Utilities:
         return files
     
     @staticmethod
-    def generic_api_handling(api, copyright=False):
+    def generic_api_handling(api, copyright=False, epub=False):
         '''Generic function for downloading and converting images.'''
         source = api()
         GenericAPICalls.download_image(source)
         if copyright: Convert.remove_watermark()
-        Convert.convert_to_pdf()
+        if not epub:
+            Convert.convert_to_pdf()

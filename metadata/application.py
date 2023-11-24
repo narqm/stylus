@@ -53,9 +53,10 @@ def main():
         if file.endswith('.epub'):
             assert args.change is not None, 'This file type doesn\'t support this action'
 
-            epubreader = EpubReader(file, args.output)
+            epubreader = EpubReader(file, args.output, replace_cover_file=args.change)
             epubreader.update_metadata(author=[metadata[0]], title=metadata[1])
-            sys.exit()
+            
+        epub_flag = True if file.endswith('.epub') else False
 
         if args.change:
 
@@ -66,24 +67,30 @@ def main():
             if args.local:
                 print(f'Importing cover page from {args.local}')
                 Convert.import_image(args.local)
-                Convert.convert_to_pdf()
+                if not epub_flag:
+                    Convert.convert_to_pdf()
             elif 10 == len(isbn):
                 try:
-                    Utilities.generic_api_handling(
-                        gap.call_google_api, copyright=True)
+                    Utilities.generic_api_handling(gap.call_google_api, 
+                        copyright=True, epub=epub_flag)
                 except AttributeError:
                     print(f'Unable to find cover for {metadata[1]}.')
                     sys.exit()
             else:
                 try:
-                    Utilities.generic_api_handling(gap.call_itunes_api)
-                except AttributeError:
+                    Utilities.generic_api_handling(gap.call_itunes_api,
+                        copyright=False, epub=epub_flag)
+                except:
                     try:
                         Utilities.generic_api_handling(gap.call_google_api, 
-                            copyright=True)
+                            copyright=True, epub=epub_flag)
                     except AttributeError:
                         print(f'Unable to find cover for {metadata[1]}.')
                         sys.exit()
+
+            if epub_flag:
+                epubreader.replace_epub_cover()
+                sys.exit()
 
         reader = PdfReader(file)
         writer = PdfWriter()

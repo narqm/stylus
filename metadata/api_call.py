@@ -73,11 +73,15 @@ class GenericAPICalls:
     
     def call_itunes_api(self):
         '''Sends a GET request to iTunes Search API'''
-        print(f'Sending requests to {self.url_apple}...')
         r = requests.get(self.url_apple)
+        print(f'Sending requests to {self.url_apple}...')
         s = r.json()
 
-        list_s = s['results'][0]['artworkUrl100'].split('/')
+        try:
+            list_s = s['results'][0]['artworkUrl100'].split('/')
+        except IndexError as ie:
+            print(f'{ie} - index out of range.')
+            return
         high_res = '/100000x100000bb.jpg'
         return '/'.join(list_s[:-1]) + high_res
     
