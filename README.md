@@ -1,13 +1,13 @@
 # RESTful-PDF-Metadata-Updater
-A simple command line eBook metadata editor that pulls info from the Google Books Dynamic Links API.
+A simple command line ebook metadata editor that pulls info from the Google Books Dynamic Links API.
 
 ## Description
 
 The Restful PDF Metadata Updater takes advantage of the [_Google Books Dynamic Links_](https://developers.google.com/books/docs/dynamic-links) API, which according to Google, "allows you to create more customizable, reliable links to Google Books."
 
-The script works by taking the PDF file name and user inputs and building an API call around it. Then formatting the returned _JSON_ and prompting the user for correctness. After this it overwrites the PDF's author, title, and modification date fields with new values.
+The script works by taking file name and user inputs and building an API call around it. Then formatting the returned _JSON_ and prompting the user for correctness. After this it overwrites the ebooks's author, title, and modification date fields with new values.
 
-It also supports inserting or replacing a PDF cover page using _Google Books Static Links_ and the [_iTunes Search API_](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/index.html) or a local file to get high resolution cover pages.
+It also supports inserting or replacing an ebook cover page using _Google Books Static Links_ and the [_iTunes Search API_](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/index.html) or a local file to get high resolution cover pages.
 
 ## Installation
 This script requires Python 3 to run, you can get it [here](https://www.python.org/downloads/).
@@ -25,12 +25,11 @@ pip install -r requirements.txt
 
 ## Usage
 ```
-useage: python metadata file [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-i ISNB]
-          [-c ADD COVERPAGE] [-d DROP COVERPAGE] [-l LOCAL IMAGE] [-m MANUAL ENTRY]
+useage: python metadata file [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-i ISNB] [-c ADD COVERPAGE] [-d DROP COVERPAGE] [-l LOCAL IMAGE] [-m MANUAL ENTRY]
 
 arguments:
-file FILEPATH                           Your PDF's filepath
--o OUTPUT, --output OUTPUT              Desired output location of the updated PDF,
+file FILEPATH                           Your files's path
+-o OUTPUT, --output OUTPUT              Desired output location of the updated ebook,
                                           writes to initial path if omitted
 -a AUTHOR NAME, --author                Optional argument to include the author's
                                           name for better search results.
@@ -43,7 +42,7 @@ file FILEPATH                           Your PDF's filepath
                                           requires ADD COVER PAGE to function.
 -l LOCAL IMAGE, --local                 Option to add a local image as cover page,
                                           requires the ADD COVER PAGE flag to be set.
--m MANUAL ENTRY, --manual               Manually enter PDF metadata.
+-m MANUAL ENTRY, --manual               Manually enter ebook metadata.
 ```
 
 Regarding the `--bookmark` argument, it's an optional flag to call the `rebuild_outline` method. This is to deal with string-encoding issues that can arise when `pypdf` reads PDFs with nested outlines (bookmarks). It will also make a noticable impact on performance, since it has to iterate through every bookmark to remove potential encoding issues.
@@ -53,7 +52,7 @@ The following command will get the metadata for _Statistical Inference_ by Georg
 ```sh
 python metadata "Statistical Inference.pdf" -o "C:\Users\user\Statistical Inference.pdf" -a "George Casella"
 ```
-Say you'd like to replace the cover page on your PDF too.
+Say you'd like to replace the cover page on a PDF too.
 ```sh
 python metadata passions.pdf -i 0300186339 -c -d
 ```
