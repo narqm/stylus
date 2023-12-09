@@ -12,6 +12,7 @@ class Window(Frame):
         self.pack(fill=BOTH, expand=1)
         self.rarrow = PhotoImage(file='arrow-right-solid.png')
         self.larrow = PhotoImage(file='arrow-left-solid.png')
+        self.darrow = PhotoImage(file='arrow-down-solid.png')
 
     def dimensions(self, image):
         '''Gets the cover page image dimensions'''
@@ -21,7 +22,7 @@ class Window(Frame):
     def resize_image(self):
         '''Resize cover page image for viewer window'''
         width, height = self.load.size
-        new = (round(width * .75), round(height * .75))
+        new = (round(width / 2), round(height / 2))
         self.adjusted_image = self.load.resize(new)
 
     def render_image(self):
@@ -41,12 +42,15 @@ class Window(Frame):
             image=self.larrow, compound='image')
         button2 = ttk.Button(button_frame, text='Next',
             image=self.rarrow, compound='image')
+        button3 = ttk.Button(button_frame, text='Download',
+            image=self.darrow, compound='image')
 
-        button1.grid(row=0, column=0, padx=10, pady=10)
-        button2.grid(row=0, column=1, padx=10, pady=10)
+        button1.grid(row=0, column=0, padx=10, pady=10, sticky='e')
+        button2.grid(row=0, column=2, padx=10, pady=10, sticky='w')
+        button3.grid(row=0, column=1, padx=10, pady=10, sticky='ew')
 
         button_frame.columnconfigure(0, weight=1)
-        button_frame.columnconfigure(1, weight=1)
+        button_frame.columnconfigure(2, weight=1)
 
 def deploy_window():
     '''Deploys the preview image window'''
@@ -61,6 +65,3 @@ def deploy_window():
     
     root.geometry(dim)
     root.mainloop()
-
-if __name__ == '__main__':
-    deploy_window()
