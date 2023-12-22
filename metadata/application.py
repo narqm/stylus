@@ -1,12 +1,13 @@
 from argparse import ArgumentParser
 from pypdf import PdfReader, PdfWriter
-from api_call import GoogleBooksAPICall, GenericAPICalls
+from convert import ChangeCoverPage
+from api_call import GoogleBooksAPICall
 from format_metadata import FormatMetadata, DirectInput
+from gui.viewer_window import launch
 from epub import EpubReader
 from write_to_file import Write
 from utility import Utilities
-from convert import Convert
-import sys
+from pathlib import Path
 
 def main():
     
@@ -31,12 +32,12 @@ def main():
         assert args.isbn is None, 'ISBN search not supported for .txt'
         assert args.author is None, 'Search by author isn\'t supported for .txt'
         utility = Utilities()
-        file = utility.unpack_text_file(args.file)
-    else: file = [args.file]
+        files = utility.unpack_text_file(args.file)
+    else: files = [args.file]
 
     isbn = args.isbn if args.isbn else ''
 
-    for file in file:
+    for file in files:
         
         if args.manual:
             metadata = DirectInput.user_metadata_prompt()
@@ -56,41 +57,20 @@ def main():
             epubreader = EpubReader(file, args.output, replace_cover_file=args.change)
             epubreader.update_metadata(author=[metadata[0]], title=metadata[1])
             
-        epub_flag = True if file.endswith('.epub') else False
+        epub = True if file.endswith('.epub') else False
 
         if args.change:
 
-            isbn = isbn if args.isbn else metadata[2]
-            preview_url = metadata[3]
+            ccp = ChangeCoverPage()
+            ccp.fetch_google_preview_isbn('results.json')
+            ccp.format_urls()
 
-            gap = GenericAPICalls(isbn=isbn, thumbnail=preview_url)
-            if args.local:
-                print(f'Importing cover page from {args.local}')
-                Convert.import_image(args.local)
-                if not epub_flag:
-                    Convert.convert_to_pdf()
-            elif 10 == len(isbn):
-                try:
-                    Utilities.generic_api_handling(gap.call_google_api, 
-                        copyright=True, epub=epub_flag)
-                except AttributeError:
-                    print(f'Unable to find cover for {metadata[1]}.')
-                    sys.exit()
-            else:
-                try:
-                    Utilities.generic_api_handling(gap.call_itunes_api,
-                        copyright=False, epub=epub_flag)
-                except:
-                    try:
-                        Utilities.generic_api_handling(gap.call_google_api, 
-                            copyright=True, epub=epub_flag)
-                    except AttributeError:
-                        print(f'Unable to find cover for {metadata[1]}.')
-                        sys.exit()
-
-            if epub_flag:
-                epubreader.replace_epub_cover()
-                sys.exit()
+            search_term = Path(file).stem.lower().replace(' ', '+')
+            ccp.fetch_itunes_preview_isbn(search_term)
+            ccp.get_apple_artwork()
+            ccp.write_previews_to_file()
+            launch()
+            ccp.delete_artwork()
 
         reader = PdfReader(file)
         writer = PdfWriter()

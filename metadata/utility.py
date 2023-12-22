@@ -61,7 +61,6 @@ class Utilities:
     def generic_api_handling(api, copyright=False, epub=False):
         '''Generic function for downloading and converting images.'''
         source = api()
-        GenericAPICalls.download_image(source)
+        GenericAPICalls.download_image(source, 'cover_page.jpg')
         if copyright: Convert.remove_watermark()
-        if not epub:
-            Convert.convert_to_pdf()
+        if not epub: Convert.convert_to_pdf()

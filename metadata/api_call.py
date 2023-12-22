@@ -86,9 +86,9 @@ class GenericAPICalls:
         return '/'.join(list_s[:-1]) + high_res
     
     @staticmethod
-    def download_image(url):
+    def download_image(url, name):
         '''Download image from source'''
         print(f'Getting book cover from: {url}')
         r = requests.get(url)
-        with open('cover_page.jpg', 'wb') as file:
+        with open(name, 'wb') as file:
             file.write(r.content)
