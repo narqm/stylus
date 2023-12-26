@@ -81,7 +81,15 @@ class ChangeCoverPage:
         for index, url in enumerate(self.preview_thumbnails, start=1):
             GenericAPICalls.download_image(url, f'cover_page{index}.jpg')
             Convert.remove_watermark(f'cover_page{index}.jpg', 25, 0, 0, 27)
-    
+
+    @staticmethod
+    def convert_to_pdf():
+        '''Convert convert.jpg to PDF and delete'''
+        with open('cover_page.pdf', 'wb') as f:
+            f.write(convert('convert.jpg'))
+
+        remove('convert.jpg')
+
     @staticmethod
     def delete_artwork():
         '''Delete saved cover_page*.jpg'''

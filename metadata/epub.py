@@ -79,16 +79,16 @@ class EpubReader:
             
             print('Epub metadata successfully updated.')
     
-    def replace_epub_cover(self):
+    def replace_epub_cover(self, jpeg):
         '''Replace cover.jpeg with a new image'''
-        with open('cover_page.jpg', 'rb') as img:
+        with open(jpeg, 'rb') as img:
             img_binary = img.read()
 
         with ZipFile(self.output, 'a') as zip_ref:
             zip_ref.writestr('cover.jpeg', img_binary)
         
         print('Epub cover.jpeg has been changed.')
-        remove('cover_page.jpg')
+        remove('convert.jpg')
             
     def __del__(self):
         self.epub_zip.close()

@@ -8,9 +8,10 @@ from epub import EpubReader
 from write_to_file import Write
 from utility import Utilities
 from pathlib import Path
+from sys import exit
 
 def main():
-    
+
     parser = ArgumentParser()
 
     parser.add_argument('file', nargs='?', help='PDF file to modify')
@@ -24,7 +25,7 @@ def main():
     parser.add_argument('-m', '--manual', action='store_true', help='Manualy enter PDF metadata')
 
     args = parser.parse_args()
-    
+
     if args.drop: assert args.change is True, '-c required when dropping cover page'
     if args.local: assert args.change is not None, '--change flag is required'
 
@@ -38,7 +39,7 @@ def main():
     isbn = args.isbn if args.isbn else ''
 
     for file in files:
-        
+
         if args.manual:
             metadata = DirectInput.user_metadata_prompt()
         else:
@@ -56,11 +57,13 @@ def main():
 
             epubreader = EpubReader(file, args.output, replace_cover_file=args.change)
             epubreader.update_metadata(author=[metadata[0]], title=metadata[1])
-            
+
         epub = True if file.endswith('.epub') else False
 
-        if args.change:
+        if epub and args.change is not True:
+            exit()
 
+        if args.change: 
             ccp = ChangeCoverPage()
             ccp.fetch_google_preview_isbn('results.json')
             ccp.format_urls()
@@ -70,7 +73,15 @@ def main():
             ccp.get_apple_artwork()
             ccp.write_previews_to_file()
             launch()
-            ccp.delete_artwork()
+
+            if epub is not True:
+                ccp.convert_to_pdf()
+                ccp.delete_artwork()
+
+            if epub is True:
+                epubreader.replace_epub_cover('convert.jpg')
+                ccp.delete_artwork()
+                exit()
 
         reader = PdfReader(file)
         writer = PdfWriter()
