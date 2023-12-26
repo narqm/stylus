@@ -49,10 +49,6 @@ class MainWindow(tk.Frame):
     def save_image(self):
         '''Save image to eBook cover page'''
         copy(f'cover_page{self.index}.jpg', 'convert.jpg')
-        with open('cover_page.pdf', 'wb') as f:
-            f.write(convert('convert.jpg'))
-        
-        remove('convert.jpg')
 
         self.main.destroy()
 
