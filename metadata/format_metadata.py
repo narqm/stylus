@@ -1,3 +1,4 @@
+from typing import Dict, List, Union, Tuple
 from pathlib import Path
 import json
 import sys
@@ -20,16 +21,16 @@ class FormatMetadata:
         assert Path('results.json').is_file(), 'Missing results.json'
         with open('results.json', 'rb') as f:
             self.data = json.load(f)
-        
+
         self.author, self.title = '', ''
 
         self.isbn_10, self.isbn_13 = '', ''
 
         self.thumbnail = ''
 
-        self.volume_info = (values['volumeInfo'] for values in self.data['items'])
-    
-    def std_title(self, title):
+        self.volume_info: iter = (values['volumeInfo'] for values in self.data['items'])
+
+    def std_title(self, title: str) -> str:
         '''Modifies variable str to check grammatical functors'''
         format_title = [title.split(' ')[0].capitalize()]
         for word in title.split(' ')[1:]:
@@ -40,10 +41,10 @@ class FormatMetadata:
             elif title.isupper():
                 format_title.append(word.capitalize())
             else: format_title.append(word)
-        
+
         return ' '.join(format_title)
 
-    def format_metadata(self):
+    def format_metadata(self) -> None:
         '''Formats desired metadata from JSON'''
         current = next(self.volume_info)
 
@@ -51,7 +52,7 @@ class FormatMetadata:
         if current.get('subtitle'): 
             subtitle = self.std_title(current['subtitle'])
             title += ': {value}'.format(value=subtitle)
-        
+
         if current.get('authors'):
             if len(current['authors']) == 3:
                 author = ', '.join(current['authors'][:-1]) + ', and ' + current['authors'][-1]
@@ -68,22 +69,22 @@ class FormatMetadata:
             self.get_thumbnail(current)
         except KeyError as ke:
             print(f'{ke} - preview link is missing')
-        
+
         self.get_isbn(current)
 
         self.confirm_metadata(author, title)
-    
-    def get_isbn(self, current):
+
+    def get_isbn(self, current: Union[Dict, List]) -> None:
         '''Obtains the ISBN-13 value from JSON'''
         self.isbn_13 = current['industryIdentifiers'][0]['identifier']
-    
-    def get_thumbnail(self, current):
+
+    def get_thumbnail(self, current: Union[Dict, List]) -> None:
         '''Grabs current selection thumbnail image link from JSON'''
         if current['imageLinks'].get('thumbnail'):
             self.thumbnail = current['imageLinks']['thumbnail']
         else: self.thumbnail = None
 
-    def confirm_metadata(self, author, title):
+    def confirm_metadata(self, author: str, title: str) -> None:
         '''Confirm if given metadata is correct'''
         accepted_resp = ['yes', 'y']
         print('Found \"{title}\" by {author}'.format(title=title, author=author))
@@ -94,8 +95,8 @@ class FormatMetadata:
             except StopIteration:
                 sys.exit('Out of results')
         else: self.author, self.title = author, title
-    
-    def metadata(self):
+
+    def metadata(self) -> Tuple[str]:
         '''Returns accepted metadata in a tuple'''
         return self.author, self.title, self.isbn_13, self.thumbnail
 
@@ -103,7 +104,7 @@ class DirectInput:
     '''Allows users to directly enter metadata'''
 
     @staticmethod
-    def user_metadata_prompt():
+    def user_metadata_prompt() -> Tuple[str]:
         '''Prompts user input for PDF author and title'''
         print('Add the PDF author and title as comma separated values.')
         metadata = input('author, title: ').split(',', maxsplit=1)
