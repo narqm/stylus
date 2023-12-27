@@ -5,8 +5,9 @@ from glob import glob
 from shutil import copy
 from img2pdf import convert
 from os import remove
+from typing import Any
 
-def launch():
+def launch() -> None:
     '''Deploys the preview image window'''
     root = tk.Tk()
     root.resizable(False, False)
@@ -20,7 +21,7 @@ def launch():
 class MainWindow(tk.Frame):
 
     def __init__(self, main=None):
-        
+
         tk.Frame.__init__(self, main)
         self.index = 1
         self.main = main
@@ -30,7 +31,7 @@ class MainWindow(tk.Frame):
         self.darrow = tk.PhotoImage(file=r'static\arrow-down-solid.png')
         self.img = None
 
-    def click_forward(self):
+    def click_forward(self) -> None:
         '''Navigate forward to new image in viewer frame'''
         files = glob('cover_page*.jpg')
         self.index += 1
@@ -38,26 +39,26 @@ class MainWindow(tk.Frame):
             self.index = 1
         self.viewer_frame()
 
-    def click_back(self):
+    def click_back(self) -> None:
         '''Navigate back to previous image in viewer frame'''
         files = glob('cover_page*.jpg')
         self.index -= 1
         if f'cover_page{self.index}.jpg' not in files:
             self.index = len(files)
         self.viewer_frame()
-    
-    def save_image(self):
+
+    def save_image(self) -> None:
         '''Save image to eBook cover page'''
         copy(f'cover_page{self.index}.jpg', 'convert.jpg')
 
         self.main.destroy()
 
-    def dimensions(self):
+    def dimensions(self) -> None:
         '''Gets the cover_page.jpg image dimensions'''
         files = [file for file in glob('cover_page*.jpg')]
         return [(Image.open(file).size) for file in files]
-    
-    def resize_image(self):
+
+    def resize_image(self) -> None:
         '''Resize cover page image for viewer window'''
         dim = min(self.dimensions())
         if dim[1] >= 900:
@@ -67,7 +68,7 @@ class MainWindow(tk.Frame):
         new = (round(dim[0] * aspect_ratio), round(dim[1] * aspect_ratio))
         self.adjusted_image = self.load.resize(new)
 
-    def viewer_frame(self):
+    def viewer_frame(self) -> None:
         '''Renders image in main window'''
         if self.img is not None:
             self.img.destroy()
@@ -80,7 +81,7 @@ class MainWindow(tk.Frame):
         self.img.image = render
         self.img.pack(side=tk.TOP)
 
-    def create_widgets(self):
+    def create_widgets(self) -> None:
         '''Creates button frame for viewer navigation'''
         style = ttk.Style()
         style.configure('TButton', background='#333333')
