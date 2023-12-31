@@ -1,5 +1,6 @@
-from typing import List, Union, Any
+from typing import List, Union
 from pathlib import Path
+import json
 import re
 
 class RebuildOutline:
@@ -57,3 +58,24 @@ class Utilities:
         files = [file.replace('\"', '').replace('\n', '') for file in files]
 
         return files
+
+    def check_if_json_exists(self, input: str) -> bool:
+        '''Checks if given JSON exists'''
+        return Path(input).exists()
+
+    def check_urls(self, _json: Path, url: str) -> bool:
+        '''Checks if api_call URL matches record'''
+        if not self.check_if_json_exists(_json):
+            return False
+
+        with open(_json, 'r') as f:
+            data = json.load(f)
+
+        return data['key'] == url
+
+    @staticmethod
+    def add_url_to_json(url: str, _json: str) -> None:
+        '''Append search URL to given JSON'''
+        data = {'key': url}
+        with open(_json, 'w') as f:
+            json.dump(data, f)

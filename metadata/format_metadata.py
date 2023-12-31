@@ -63,7 +63,7 @@ class FormatMetadata:
             else: author = current['authors'][0] + ' and ' + current['authors'][-1]
         else:
             print('No author data on file...')
-            author, _ = DirectInput.user_metadata_prompt()
+            author, title = DirectInput.user_metadata_prompt()
 
         try:
             self.get_thumbnail(current)

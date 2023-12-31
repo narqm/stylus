@@ -44,15 +44,25 @@ class Write:
         page.mediabox = RectangleObject(
             (reference[0], reference[1], reference[2], reference[3]))
 
+    def _check_new_cover(self, base: Tuple[int], ref: Tuple[int]) -> bool:
+        '''Check new cover page dimensions against ebook'''
+        if base.width <= ref.width:
+            return False
+        else:
+            return True
+
     def transform_page_cover(self, page: Any) -> None:
         '''Scales cover page dimensions to original document'''
         box = self.get_page_dimensions(page)
-        ref_box = self.get_page_dimensions(self.reader, 
+        ref_box = self.get_page_dimensions(self.reader,
             replace_cover=self.replace)
 
+        if not self._check_new_cover(box, ref_box):
+            return
+
         height, width = ref_box.height, ref_box.width
-        height_scale = height / box.height
-        width_scale = width / box.width
+        height_scale = min((height / box.height), 1)
+        width_scale = min((width / box.width), 1)
 
         scale = Transformation().scale(sx=width_scale, sy=height_scale)
         print(f'Vertical Scale: {height_scale}, Horizontal Scale: {width_scale}')
@@ -62,7 +72,7 @@ class Write:
 
     def insert_new_cover(self, replace_cover: bool = False) -> None:
         '''Adds a new book cover to PDF'''
-        if replace_cover: 
+        if replace_cover:
             self.call_rb()
             for page in self.reader.pages[1:]:
                 self.writer.add_page(page)

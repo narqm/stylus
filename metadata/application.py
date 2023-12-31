@@ -49,7 +49,11 @@ def main() -> None:
             api_call = GoogleBooksAPICall(file)
             url = api_call.build_api_request(args.author, isbn)
 
-            api_call.call_api(url, output='results.json')
+            util = Utilities()
+
+            if not util.check_urls('key.json', url):
+                api_call.call_api(url, output='results.json')
+                util.add_url_to_json(url, 'key.json')
 
             _format = FormatMetadata()
             _format.format_metadata()
