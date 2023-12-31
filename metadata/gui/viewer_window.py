@@ -1,11 +1,10 @@
+from typing import List, Union, Tuple
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 from glob import glob
 from shutil import copy
-from img2pdf import convert
-from os import remove
-from typing import Any
+
 
 def launch() -> None:
     '''Deploys the preview image window'''
@@ -17,6 +16,7 @@ def launch() -> None:
     app.create_widgets()
 
     root.mainloop()
+
 
 class MainWindow(tk.Frame):
 
@@ -53,7 +53,7 @@ class MainWindow(tk.Frame):
 
         self.main.destroy()
 
-    def dimensions(self) -> None:
+    def dimensions(self) -> List[Union[Tuple, float]]:
         '''Gets the cover_page.jpg image dimensions'''
         files = [file for file in glob('cover_page*.jpg')]
         return [(Image.open(file).size) for file in files]
@@ -62,7 +62,7 @@ class MainWindow(tk.Frame):
         '''Resize cover page image for viewer window'''
         dim = min(self.dimensions())
         if dim[1] >= 900:
-            dim =  (dim[0] * .5, dim[1] * .5)
+            dim = (dim[0] * .5, dim[1] * .5)
         width, height = self.load.size
         aspect_ratio = width / height
         new = (round(dim[0] * aspect_ratio), round(dim[1] * aspect_ratio))
@@ -89,7 +89,7 @@ class MainWindow(tk.Frame):
         button_frame = tk.Frame(self, bg='#333333')
         button_frame.pack(side=tk.BOTTOM, fill=tk.X, expand=True)
 
-        button1 = ttk.Button(button_frame, text='Previous', 
+        button1 = ttk.Button(button_frame, text='Previous',
             image=self.larrow, compound='image', command=self.click_back)
         button2 = ttk.Button(button_frame, text='Next',
             image=self.rarrow, compound='image', command=self.click_forward)
