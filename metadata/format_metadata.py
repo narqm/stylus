@@ -93,7 +93,8 @@ class FormatMetadata:
         if confirm not in accepted_resp:
             try: self.format_metadata()
             except StopIteration:
-                sys.exit('Out of results')
+                print('Out of results...')
+                self.author, self.title = DirectInput.user_metadata_prompt()
         else: self.author, self.title = author, title
 
     def metadata(self) -> Tuple[str]:
