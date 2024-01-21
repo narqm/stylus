@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Any, List, Union
 from pathlib import Path
 import json
 import re
@@ -13,35 +13,36 @@ class RebuildOutline:
     @staticmethod
     def extract_text(text: List[str]) -> str:
         '''Basic text extraction and cleaning utility'''
-        pattern = r'b[\'"](.*)[\'"]'
-        matches = re.search(pattern, text.replace('\\x00', ''))
-        if matches: return matches.group(1)
-        return text.replace('\\x00', '')
+        assert isinstance(text, str), 'Error - text is not a string'
+        text = text.replace('\\x00', '')
+        matches = re.search(r'b[\'"](.*)[\'"]', text)
+        return matches.group(1) if matches else text
 
-    def search_lists(self, outline: List[Union[List, str]], parent: List[str]) -> None:
-        '''Recursively searches nested outline objects'''
-        for sub_section in outline:
-            if isinstance(sub_section, list):
-                child_object = None
-                self.search_lists(sub_section, child_object)
+    def recursive_outline_call(self,outlines: List[Union[List, str]], parent: Union[None, Any]) -> None:
+        '''Recursive function for nested outlines in rebuild_outline'''
+        for item in outlines:
+
+            if not isinstance(item, list):
+                title = self.extract_text(item['/Title'])
+                page_number = self.reader.get_destination_page_number(item)
+                self.writer.add_outline_item(title, page_number, parent)
+
             else:
-                title = self.extract_text(sub_section['/Title'])
-                page_number = self.reader.get_destination_page_number(sub_section)
-                child_object = self.writer.add_outline_item(
-                    title, page_number, parent)
+                self.recursive_outline_call(item, parent)
 
     def rebuild_outline(self, outlines: List[Union[List, str]]) -> None:
         '''Rebuilds PDF outline after cleaning up any string-encoding issues'''
-        assert isinstance(outlines, list), 'Error - outlines is not a list'
+        assert isinstance(outlines, list), 'Error - outlines must be list'
         print('Rebuilding outline...')
-        for outline in outlines:
-            if isinstance(outline, list):
-                parent = None
-                self.search_lists(outline, parent)
+
+        for item in outlines:
+
+            if not isinstance(item, list):
+                page_number = self.reader.get_destination_page_number(item)
+                parent = self.writer.add_outline_item(item['/Title'], page_number)
+
             else:
-                page_number = self.reader.get_destination_page_number(outline)
-                parent = self.writer.add_outline_item(
-                    outline['/Title'], page_number)
+                self.recursive_outline_call(item, parent)
 
 class Utilities:
     '''General utility class for path unpacking'''
