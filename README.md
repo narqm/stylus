@@ -14,7 +14,7 @@ This script requires Python 3 to run, you can get it [here](https://www.python.o
 
 Run this if git is installed on your computer:
 ```sh
-git clone https://github.com/bremixx/RESTful-PDF-Metadata-Updater.git
+git clone https://github.com/narqm/RESTful-Ebook-Metadata-Updater.git
 cd RESTful-PDF-Metadata-Updater
 ```
 Alternatively, click on `Code > Download ZIP` and unzip the source files to a directory.
