@@ -1,7 +1,7 @@
 from pathlib import Path
-from requests_html import HTMLSession
 from typing import List
 import requests
+import re
 
 class GoogleBooksAPICall:
     '''Builds a Dynamic Link and sends it to Google Books'''
@@ -27,10 +27,22 @@ class GoogleBooksAPICall:
             for chunk in r.iter_content(chunk_size=128):
                 handler.write(chunk)
 
+    @staticmethod
+    def parse_file_name(name: str) -> str:
+        '''Regular expression file name parser'''
+        pattern = re.compile(r'^(.*?)\s(by|-|_)\s(.*?)$')
+        return pattern.search(name).group(1)
+
+    @staticmethod
+    def format_title(title: str) -> str:
+        '''Format book title for API call'''
+        return Path(title).stem.lower()
+
     def build_api_request(self, author: str = '', isbn: str = '') -> str:
         '''Builds a Google Books API call'''
         assert isinstance(isbn, str), f'Error - isbn is a {isbn.__class__.__name__}'
-        name = Path(self.file).stem.lower().replace(' ', '+')
+        name = self.format_title(self.file)
+        name = self.parse_file_name(name).replace(' ', '+')
         if ',' in name: name = name.split(',')[0]
 
         self.url = 'https://www.googleapis.com/' \
@@ -51,19 +63,7 @@ class GenericAPICalls:
         self.google_thumbnail = thumbnail
 
         self.url_apple = f'https://itunes.apple.com/lookup?isbn={isbn}'
-        self.url_google = f'https://books.google.com/books?vid=ISBN{isbn}' \
-                                '&printsec=frontcover'
-
-    def call_google_preview(self) -> str:
-        '''Sends a GET request to Google Books static link preview'''
-        session = HTMLSession()
-        print(f'Sending requests to {self.url_google}...')
-        r = session.get(self.url_google)
-        r.html.render(sleep=1)
-
-        xpath = '//*[@id="viewport"]/div[1]/div/div/div[1]/div[2]/div/div[3]/img'
-        cover_page = r.html.xpath(xpath, first=True)
-        return cover_page.attrs['src']
+        self.url_google = f'https://books.google.com/books?vid=ISBN{isbn}&printsec=frontcover'
 
     def call_google_api(self) -> str:
         '''Sends a GET request for Google Books static link thumbnail url'''
