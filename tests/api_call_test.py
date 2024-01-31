@@ -1,4 +1,4 @@
-from metadata.api_call import GoogleBooksAPICall
+from stylus.api_call import GoogleBooksAPICall
 
 def test_normal_build_api_request():
     gbac = GoogleBooksAPICall(r'.\resources\Think Python, sample.pdf')
