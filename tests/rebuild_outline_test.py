@@ -1,4 +1,4 @@
-from metadata.utility import RebuildOutline
+from stylus.utility import RebuildOutline
 from pypdf import PdfReader, PdfWriter
 
 
