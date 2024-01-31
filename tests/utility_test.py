@@ -1,4 +1,4 @@
-from metadata.utility import Utilities
+from stylus.utility import Utilities
 
 def test_missing_first_line():
     func = Utilities.unpack_text_file('resources\\missing_first_line.txt')
