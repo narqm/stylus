@@ -1,12 +1,12 @@
 from argparse import ArgumentParser
 from pypdf import PdfReader, PdfWriter
-from convert import ChangeCoverPage
-from api_call import GoogleBooksAPICall
-from format_metadata import FormatMetadata, DirectInput
-from gui.viewer_window import launch
-from epub import EpubReader
-from write_to_file import Write
-from utility import Utilities
+from .imageconvert import ChangeCoverPage
+from .apicall import GoogleBooksAPICall
+from .formatmetadata import FormatMetadata, DirectInput
+from .gui.viewerwindow import launch
+from .epub import EpubReader
+from .write_to_file import Write
+from .utility import Utilities
 from pathlib import Path
 from sys import exit
 from typing import List
@@ -25,7 +25,7 @@ def main() -> None:
     parser.add_argument('-d', '--drop', action='store_true', help='Drops PDF cover page')
     parser.add_argument('-b', '--bookmark', action='store_true', help='Flag to reconstruct PDF outline')
     parser.add_argument('-l', '--local', help='Use a local image file for PDF cover page')
-    parser.add_argument('-m', '--manual', action='store_true', help='Manualy enter PDF metadata')
+    parser.add_argument('-m', '--manual', action='store_true', help='Manually enter PDF metadata')
 
     args = parser.parse_args()
 
@@ -36,7 +36,7 @@ def main() -> None:
         assert args.isbn is None, 'ISBN search not supported for .txt'
         assert args.author is None, 'Search by author isn\'t supported for .txt'
         utility = Utilities()
-        files: List[str] = utility.unpack_text_file(args.file)
+        files: List[Path] = utility.unpack_text_file(args.file)
     else: files = [args.file]
 
     isbn: bool = args.isbn if args.isbn else ''

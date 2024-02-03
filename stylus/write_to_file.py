@@ -1,15 +1,16 @@
-from utility import RebuildOutline
+from .outlineparser import RebuildOutline
 from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf.generic import RectangleObject
 from datetime import datetime
 from typing import Tuple, Any
 from os import remove
 
+
 class Write:
     '''Writes metadata to PDF'''
     def __init__(self, author: str, title: str, reader: PdfReader,
                  writer: PdfWriter, _input: str, replace: bool = False):
-        assert not (reader.is_encrypted), 'Failed to edit - document is encrypted.'
+        assert not reader.is_encrypted, 'Failed to edit - document is encrypted.'
 
         self.reader = reader
         self.writer = writer
@@ -39,7 +40,7 @@ class Write:
         return box
 
     @staticmethod
-    def resize_page(page: Any, reference: Tuple[str]) -> None:
+    def resize_page(page: Any, reference: Tuple[float]) -> None:
         '''Resize the page mediabox to reference page'''
         page.mediabox = RectangleObject(
             (reference[0], reference[1], reference[2], reference[3]))
@@ -53,8 +54,8 @@ class Write:
 
     def transform_page_cover(self, page: Any) -> None:
         '''Scales cover page dimensions to original document'''
-        box = self.get_page_dimensions(page)
-        ref_box = self.get_page_dimensions(self.reader,
+        box: RectangleObject = self.get_page_dimensions(page)
+        ref_box: RectangleObject = self.get_page_dimensions(self.reader,
             replace_cover=self.replace)
 
         if not self._check_new_cover(box, ref_box):

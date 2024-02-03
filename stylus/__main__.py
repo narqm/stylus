@@ -1,4 +1,4 @@
-from application import main
+from stylus import application
 
 if __name__ == '__main__':
-    main()
+    application.main()
