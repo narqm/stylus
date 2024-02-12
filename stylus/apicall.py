@@ -16,9 +16,18 @@ class FileNameParser:
         pattern = re.compile(r'^(.*?)\s(by|-|_)\s(.*?)$')
         self.file = pattern.search(name).group(1)
 
+    def check_name_break(self, name: str) -> bool:
+        '''Check file name for common delimiters'''
+        name_break = ['by', '-']
+        values = re.split(r'\s|_', name)
+        for value in values:
+            _bool = True if value in name_break else False
+            if _bool: return True
+
     def return_query_body(self) -> str:
         '''Return the file name for API consumption'''
-        self.parse_file_name(self.file)
+        if self.check_name_break(self.file):
+            self.parse_file_name(self.file)
         return self.file
 
 
@@ -60,8 +69,8 @@ class GoogleBooksAPICall:
     def build_api_request(self, author: str = '', isbn: str = '') -> str:
         '''Builds a Google Books API call'''
         assert isinstance(isbn, str), f'Error - isbn is a {isbn.__class__.__name__}'
-        name = self.format_title(self.file)
-        name = self.parse_file_name(name).replace(' ', '+')
+        filenameparser = FileNameParser(self.file)
+        name = filenameparser.return_query_body().replace(' ', '+')
         if ',' in name: name = name.split(',')[0]
 
         self.url = 'https://www.googleapis.com/' \
