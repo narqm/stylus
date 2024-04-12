@@ -3,7 +3,7 @@ from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf.generic import RectangleObject
 from datetime import datetime
 from typing import Tuple, Any
-from os import remove
+from os import remove, listdir
 
 
 class Write:
@@ -103,4 +103,17 @@ class Write:
 
         with open(output, 'wb') as file:
             self.writer.write(file)
+
+        self.clean_up()
+
         print('PDF metadata successfully updated.')
+
+    @staticmethod
+    def clean_up():
+        '''Clean up JSON search files'''
+        content = listdir()
+        if 'key.json' in content:
+            remove('key.json')
+
+        if 'results.json' in content:
+            remove('results.json')
