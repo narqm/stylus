@@ -1,9 +1,9 @@
 from .outlineparser import RebuildOutline
 from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf.generic import RectangleObject
+from os import remove, listdir, path, getcwd
 from datetime import datetime
 from typing import Tuple, Any
-from os import remove, listdir
 
 
 class Write:
@@ -108,12 +108,15 @@ class Write:
 
         print('PDF metadata successfully updated.')
 
-    @staticmethod
-    def clean_up():
+    def clean_up(self):
         '''Clean up JSON search files'''
-        content = listdir()
+        origin = getcwd()
+
+        content = listdir(origin)
         if 'key.json' in content:
-            remove('key.json')
+            key = path.join(origin, 'key.json')
+            remove(key)
 
         if 'results.json' in content:
-            remove('results.json')
+            results = path.join(origin, 'results.json')
+            remove(results)
