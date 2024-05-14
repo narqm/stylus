@@ -50,13 +50,13 @@ Regarding the `--bookmark` argument, it's an optional flag to call the `rebuild_
 ## Example
 The following command will get the metadata for _Statistical Inference_ by George Casella.
 ```sh
-python metadata "Statistical Inference.pdf" -o "C:\Users\user\Statistical Inference.pdf" -a "George Casella"
+stylus "Statistical Inference.pdf" -o "C:\Users\user\Statistical Inference.pdf" -a "George Casella"
 ```
 Say you'd like to replace the cover page on a PDF too.
 ```sh
-python metadata passions.pdf -i 0300186339 -c -d
+stylus passions.pdf -i 0300186339 -c -d
 ```
 If you want to edit a number of files at once, copy the file paths to a _.txt_ file and pass it like any other PDF.
 ```sh
-python metadata files_to_update.txt
+stylus files_to_update.txt
 ```
