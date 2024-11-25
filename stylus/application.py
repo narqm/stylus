@@ -5,12 +5,41 @@ from .apicall import GoogleBooksAPICall
 from .formatmetadata import FormatMetadata, DirectInput
 from .gui.viewerwindow import launch
 from .epub import EpubReader
-from .write_to_file import Write
+from .writetofile import Write
 from .utility import Utilities
 from pathlib import Path
 from sys import exit
-from typing import List
 from shutil import copy
+
+
+def check_txt_file(_file: str, isbn: str, author: str) -> list[Path]:
+
+    if _file.endswith('.txt'):
+        assert isbn is None, 'ISBN search not supported for .txt'
+        assert author is None, 'Search by author isn\'t supported for .txt'
+        utility = Utilities()
+        files: list[Path] = utility.unpack_text_file(_file)
+    else:
+        files = [_file]
+    return files
+
+
+def ccp_handler():
+    ...
+
+
+def api_hander(_file: str, author: str, isbn: str) -> None:
+
+    api_call = GoogleBooksAPICall(_file)
+    url: str = api_call.build_api_request(author, isbn)  # why doesn't this have a default?
+
+    util = Utilities()
+
+    if not util.check_urls('key.json', url):  # why write url to file, load
+                                              # and appnd to sep output file???
+        api_call.call_api(url, output='results.json')
+        util.add_url_to_json(url, 'key.json')
+    return None
 
 
 def main() -> None:
@@ -26,37 +55,27 @@ def main() -> None:
     parser.add_argument('-b', '--bookmark', action='store_true', help='Flag to reconstruct PDF outline')
     parser.add_argument('-l', '--local', help='Use a local image file for PDF cover page')
     parser.add_argument('-m', '--manual', action='store_true', help='Manually enter PDF metadata')
+    parser.add_argument('-s', '--short', action='store_true', help='Don\'t use full title')
 
     args = parser.parse_args()
 
-    if args.drop: assert args.change is True, '-c required when dropping cover page'
-    if args.local: assert args.change is not None, '--change flag is required'
+    if args.drop: assert args.change is True, '-c required when dropping cover page'  # opinionated
+    if args.local: assert args.change is not None, '--change flag is required'  # switch to only local?
 
-    if args.file.endswith('.txt'):
-        assert args.isbn is None, 'ISBN search not supported for .txt'
-        assert args.author is None, 'Search by author isn\'t supported for .txt'
-        utility = Utilities()
-        files: List[Path] = utility.unpack_text_file(args.file)
-    else: files = [args.file]
+    files = check_txt_file(args.file, args.isbn, args.author)
 
-    isbn: bool = args.isbn if args.isbn else ''
+    isbn: str = args.isbn if args.isbn else ''  # why do I need this?
 
     for file in files:
 
         if args.manual:
             metadata = DirectInput.user_metadata_prompt()
         else:
-            api_call = GoogleBooksAPICall(file)
-            url = api_call.build_api_request(args.author, isbn)
 
-            util = Utilities()
+            api_hander(file, args.author, isbn)
 
-            if not util.check_urls('key.json', url):
-                api_call.call_api(url, output='results.json')
-                util.add_url_to_json(url, 'key.json')
-
-            _format = FormatMetadata()
-            _format.format_metadata()
+            _format: FormatMetadata = FormatMetadata()
+            _format.format_metadata(short_title_bool=args.short)
             metadata = _format.metadata()
 
         if file.endswith('.epub'):

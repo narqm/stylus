@@ -1,4 +1,3 @@
-from typing import List
 from pathlib import Path
 import json
 
@@ -9,7 +8,7 @@ class Utilities:
         ...
 
     @staticmethod
-    def unpack_text_file(file: Path) -> List[Path]:
+    def unpack_text_file(file: str) -> list[Path]:
         '''Unpack text file lines to list'''
         assert Path(file).suffix == '.txt', 'Error - can only unpack .txt files'
         with open(file, 'r') as file:
@@ -23,7 +22,7 @@ class Utilities:
         '''Checks if given JSON exists'''
         return Path(input).exists()
 
-    def check_urls(self, _json: Path, url: str) -> bool:
+    def check_urls(self, _json: str, url: str) -> bool:
         '''Checks if api_call URL matches record'''
         if not self.check_if_json_exists(_json):
             return False
@@ -34,8 +33,8 @@ class Utilities:
         return data['key'] == url
 
     @staticmethod
-    def add_url_to_json(url: str, _json: str) -> None:
-        '''Append search URL to given JSON'''
+    def add_url_to_json(url: str, _json: str) -> None:  # this is really slow
+        '''Append search URL to given JSON'''  # worst descpt yet
         data = {'key': url}
         with open(_json, 'w') as f:
             json.dump(data, f)
