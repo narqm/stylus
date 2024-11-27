@@ -1,9 +1,7 @@
 import img2pdf
 from typing import Optional, Tuple, List, Dict, Any
-from .apicall import GenericAPICalls, GoogleBooksAPICall
+from apicall import GenericAPICalls, GoogleBooksAPICall
 from os import remove
-import cv2 as cv
-import numpy as np
 from shutil import copy
 from glob import glob
 import json
@@ -11,23 +9,6 @@ import json
 
 class ConvertCoverImage:
     '''Converts cover_page.jpg to PDF'''
-    @staticmethod
-    def remove_watermark(file: str, x1: Optional[int] = 152, x2: Optional[int] = 36,
-                         y1: Optional[int] = 15, y2: Optional[int] = 21) -> None:
-        '''Removes the watermark from Google Books preview image'''
-        img: bytes = cv.imread(file)
-        blank = np.zeros(img.shape[:2], dtype='uint8')
-
-        start_pt: Tuple[float] = (img.shape[1]-x1, img.shape[0]-x2)
-        end_pt: Tuple[float] = (img.shape[1]-y1, img.shape[0]-y2)
-        mask = cv.rectangle(blank, start_pt, end_pt, 255, -1)
-
-        kernel_size = (5, 5)
-        mask = cv.GaussianBlur(mask, kernel_size, cv.BORDER_DEFAULT)
-
-        dst = cv.inpaint(img, mask, 3, cv.INPAINT_TELEA)
-        cv.imwrite(file, dst)
-
     @staticmethod
     def import_image(image: str) -> None:
         '''Copies a given image for use by the other methods'''

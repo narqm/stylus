@@ -1,4 +1,4 @@
-from .outlineparser import RebuildOutline
+from outlineparser import RebuildOutline
 from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf.generic import RectangleObject
 from os import remove, listdir, path, getcwd
