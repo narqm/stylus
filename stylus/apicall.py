@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Union
-import json
 import requests
 import re
 
@@ -50,7 +49,7 @@ class GoogleBooksAPICall:
                 handler.write(chunk)
 
     @staticmethod
-    def call_api(url: str, output: str = 'results.json') -> None:
+    def call_api(url: str, output: str = 'results.json'):
         '''Sends a GET request to the API.'''
         print(f'Sending request to {url}...')
 
@@ -59,7 +58,7 @@ class GoogleBooksAPICall:
 
         # GoogleBooksAPICall.dwnld_json(r, output)
 
-        return r
+        return r.json()
 
     @staticmethod
     def parse_file_name(name: str) -> str:

@@ -34,6 +34,7 @@ def api_handler(_file: str, author: str, isbn: str):
                                                 # and appnd to sep output file???
     #     return api_call.call_api(url)
 
+
 def epub_unspprt_assrt(_file: str):
     '''Assert file extension is not epub,
        epub support has been deprecated'''
@@ -41,7 +42,7 @@ def epub_unspprt_assrt(_file: str):
     assert not epub, 'stylus not longer supports .epub.'
 
 
-def main() -> None:
+def main():
 
     parser = ArgumentParser()
 

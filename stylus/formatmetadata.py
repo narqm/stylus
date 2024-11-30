@@ -37,7 +37,7 @@ class FormatMetadata:
     def encaps_json(self, _json):
         '''Function encapsulates JSON variable.'''
         # need to convert response obj
-        self.data = json.load(_json)  # attr error: no read
+        self.data = _json  # attr error: no read
 
     def build_query_iter(self):
         '''Builds immutable iterator from dictionary.'''
