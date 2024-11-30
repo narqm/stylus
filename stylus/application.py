@@ -1,13 +1,12 @@
 from argparse import ArgumentParser
+from pathlib import Path
+from shutil import copy
 from pypdf import PdfReader, PdfWriter
 from imageconvert import ChangeCoverPage
 from apicall import GoogleBooksAPICall
-from formatmetadata import FormatMetadata, DirectInput
+from formatmetadata import FormatMetadata, user_metadata_prompt
 from writetofile import Write
 from utility import Utilities
-from pathlib import Path
-from sys import exit
-from shutil import copy
 
 
 def check_txt_file(_file: str, isbn: str, author: str) -> list[Path]:
@@ -27,13 +26,13 @@ def api_handler(_file: str, author: str, isbn: str):
     api_call = GoogleBooksAPICall(_file)
     url: str = api_call.build_api_request(author, isbn)  # why doesn't this have a default?
 
-    util = Utilities()
+    # util = Utilities()
 
-    if not util.check_urls('key.json', url):  # why write url to file, load
-                                              # and appnd to sep output file???
-        api_call.call_api(url, output='results.json')
-        util.add_url_to_json(url, 'key.json')
+    return api_call.call_api(url)
 
+    # if not util.check_urls('key.json', url):  # why write url to file, load
+                                                # and appnd to sep output file???
+    #     return api_call.call_api(url)
 
 def epub_unspprt_assrt(_file: str):
     '''Assert file extension is not epub,
@@ -79,13 +78,13 @@ def main() -> None:
         epub_unspprt_assrt(file)
 
         if args.manual:
-            metadata = DirectInput.user_metadata_prompt()
+            metadata = user_metadata_prompt()
         else:
 
-            api_handler(file, args.author, isbn)
+            metadata = api_handler(file, args.author, isbn)
 
-            _format: FormatMetadata = FormatMetadata()
-            _format.format_metadata()
+            _format: FormatMetadata = FormatMetadata(metadata)
+            _format.format_metadata(args.short)
             metadata = _format.metadata()
 
         if args.change:  # should consolidate this

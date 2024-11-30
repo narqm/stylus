@@ -1,5 +1,6 @@
 from pathlib import Path
-from typing import List, Union
+from typing import Union
+import json
 import requests
 import re
 
@@ -21,8 +22,7 @@ class FileNameParser:
         name_break = ['by', '-']
         values = re.split(r'\s|_', name)
         for value in values:
-            _bool = True if value in name_break else False
-            if _bool: return True
+            return value in name_break
 
     def return_query_body(self) -> str:
         '''Return the file name for API consumption'''
@@ -37,23 +37,29 @@ class GoogleBooksAPICall:
 
     def __init__(self, file: str):
         self.file: Path = Path(file)
-        accepted_file_types: List[str] = ['.pdf', '.epub']
+        accepted_file_types: list[str] = ['.pdf', '.epub']
         assert Path.is_file(self.file), 'File path must be valid'
         assert Path(self.file).suffix in accepted_file_types, 'Error - Invalid file type'
+        self.url = ''
 
     @staticmethod
-    def call_api(url: str, output: str) -> None:
-        '''Sends a GET request to the API'''
+    def dwnld_json(_r: dict, _output: str):
+        '''Download JSON to local file.'''
+        with open(_output, 'wb') as handler:
+            for chunk in _r.iter_content(chunk_size=128):
+                handler.write(chunk)
+
+    @staticmethod
+    def call_api(url: str, output: str = 'results.json') -> None:
+        '''Sends a GET request to the API.'''
         print(f'Sending request to {url}...')
 
-        r = requests.get(url)
+        r: str = requests.get(url)
         assert r.status_code == 200, f'Error - Status Code {r.status_code}'
 
-        s = r.json()
+        # GoogleBooksAPICall.dwnld_json(r, output)
 
-        with open(output, 'wb') as handler:
-            for chunk in r.iter_content(chunk_size=128):
-                handler.write(chunk)
+        return r
 
     @staticmethod
     def parse_file_name(name: str) -> str:
@@ -71,16 +77,14 @@ class GoogleBooksAPICall:
         assert isinstance(isbn, str), f'Error - isbn is a {isbn.__class__.__name__}'
         filenameparser = FileNameParser(self.file)
         name = filenameparser.return_query_body().replace(' ', '+')
-        if ',' in name: name = name.split(',')[0]
-
+        name = name.split(',')[0] if ',' in name else name
         self.url = 'https://www.googleapis.com/' \
-                        f'books/v1/volumes?q={name}'
+                   f'books/v1/volumes?q={name}'
 
         if author:
             author = author.replace(' ', '+').lower()
             self.url += f'+inauthor:{author}'
-        if isbn: self.url += f'+isbn:{isbn}'
-
+        self.url += f'+isbn:{isbn}' if isbn else ''
         return self.url
 
 
@@ -108,7 +112,7 @@ class GenericAPICalls:
         s = r.json()
 
         try:
-            list_s: List[str] = s['results'][0]['artworkUrl100'].split('/')
+            list_s: list[str] = s['results'][0]['artworkUrl100'].split('/')
         except IndexError as ie:
             print(f'{ie} - index out of range.')
             return
