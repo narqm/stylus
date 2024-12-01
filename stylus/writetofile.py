@@ -3,7 +3,9 @@ from pypdf import PdfReader, PdfWriter, Transformation
 from pypdf.generic import RectangleObject
 from os import remove, listdir, path, getcwd
 from datetime import datetime
-from typing import Tuple, Any
+from typing import Any
+from statistics import mode
+from random import sample
 
 
 class Write:
@@ -26,37 +28,58 @@ class Write:
 
     def call_rb(self, append: bool = False) -> None:
         '''Calls utility.RebuildOutline on reader/writer object'''
-        if append: self.writer.append(self.input, import_outline=False)
+        if append:
+            self.writer.append(self.input, import_outline=False)
         rb = RebuildOutline(self.reader, self.writer)
         rb.rebuild_outline(outlines=self.reader.outline)
 
     @staticmethod
-    def get_page_dimensions(reader_object: PdfReader, replace_cover: bool = False) -> RectangleObject:
-        '''Get first page height x width attributes'''
-        if replace_cover:
-            box = reader_object.pages[1].mediabox
-        else:
-            box = reader_object.pages[0].mediabox
-        return box
+    def build_page_dim_sample(_input: PdfReader, _k: int) -> RectangleObject:
+        '''Function builds page.width random sample off k items.'''
+        index: list[int] = sample(range(len(_input.pages)), _k)
+        _widths: list[float] = []
+        rect_obj_collection: list[RectangleObject] = []
+        # needs refactor
+        for i in index:
+            _widths.append(_input.pages[i].mediabox.width)
+            rect_obj_collection.append(_input.pages[i].mediabox)
+        _mode_width: int = mode(_widths)
+        return next(rect for rect in rect_obj_collection if int(rect.width) == _mode_width)
 
     @staticmethod
-    def resize_page(page: Any, reference: Tuple[float]) -> None:
-        '''Resize the page mediabox to reference page'''
-        page.mediabox = RectangleObject(
-            (reference[0], reference[1], reference[2], reference[3]))
+    def calc_sample_size(_reader_object: PdfReader) -> int:
+        '''Function calculates sample size from PdfReader object.'''
+        num_of_pages: int = len(_reader_object.pages)
+        return int(num_of_pages * .1)
 
-    def _check_new_cover(self, base: Tuple[int], ref: Tuple[int]) -> bool:
+    def get_page_dimensions(self, reader_object: PdfReader, replace_cover: bool = False) -> RectangleObject:
+        '''Get first page height x width attributes'''
+        # use len(PdfReader().pages) to get page length
+        # if replace_cover:  # should rndm sample 10-20% and use mode dim
+        #     box = reader_object.pages[1].mediabox
+        # else:
+        #     box = reader_object.pages[0].mediabox
+        # return box
+        sample_size: int = self.calc_sample_size(reader_object)
+        if replace_cover:
+            return self.build_page_dim_sample(reader_object, sample_size)
+        return reader_object.pages[0].mediabox
+
+    @staticmethod
+    def resize_page(page: Any, reference: tuple[float]) -> None:
+        '''Resize the page mediabox to reference page'''
+        page.mediabox = RectangleObject(reference)
+
+    def _check_new_cover(self, base: tuple[float], ref: tuple[float]) -> bool:
         '''Check new cover page dimensions against ebook'''
         if base.width <= ref.width:
             return False
-        else:
-            return True
+        return True
 
     def transform_page_cover(self, page: Any) -> None:
         '''Scales cover page dimensions to original document'''
         box: RectangleObject = self.get_page_dimensions(page)
-        ref_box: RectangleObject = self.get_page_dimensions(self.reader,
-            replace_cover=self.replace)
+        ref_box: RectangleObject = self.get_page_dimensions(self.reader, self.replace)
 
         if not self._check_new_cover(box, ref_box):
             return

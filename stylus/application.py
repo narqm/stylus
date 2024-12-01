@@ -42,24 +42,31 @@ def epub_unspprt_assrt(_file: str):
     assert not epub, 'stylus not longer supports .epub.'
 
 
+def cover_page_setup(_replace: str):
+    '''Function setup local files for ChangeCoverPage.'''
+    if _replace:
+        copy(_replace, 'convert.jpg')
+        ChangeCoverPage.convert_to_pdf()
+
 def main():
 
     parser = ArgumentParser()
 
-    parser.add_argument('file', nargs='?', help='PDF file to modify')
+    parser.add_argument('file', nargs='?', help='Path to your eBook.')
     parser.add_argument('-o', '--output',
-                        help='Where to save the modified PDF')
-    parser.add_argument('-a', '--author', help='Option to search by author')
+                        help='Path to save your modified eBook to.')
+    parser.add_argument('--author', help='Search by eBook author.')
     parser.add_argument('-i', '--isbn', type=str,
-                        help='Option to search by ISBN')
-    parser.add_argument('-c', '--change', action='store_true',
-                        help='Changes file cover page')
-    parser.add_argument('-d', '--drop', action='store_true',
-                        help='Drops PDF cover page')
+                        help='Search by eBook\'s ISBN-10 value.')
+    # needs to to accpt image path
+    parser.add_argument('-r', '--replace', action='store',
+                        help='Replace eBook cover with given JPEG file.')
+    parser.add_argument('-a', '-append', action='store',
+                        help='Appends given JPEG file to cover of eBook.')
     parser.add_argument('-b', '--bookmark', action='store_true',
-                        help='Flag to reconstruct PDF outline')
+                        help='Reconstruct eBook table of content.')
     parser.add_argument('-m', '--manual', action='store_true',
-                        help='Manually enter PDF metadata')
+                        help='Manually enter PDF metadata.')
     parser.add_argument('-s', '--short', action='store_true',
                         help='Don\'t use full title')
 
@@ -67,12 +74,16 @@ def main():
 
     # replace args.drop + args.change with
     # args.add + args.replace?
-    if args.drop:
-        assert args.change, '-c required when dropping cover page.'
 
     files = check_txt_file(args.file, args.isbn, args.author)
 
     isbn: str = args.isbn if args.isbn else ''  # why do I need this?
+
+    _insert_cover: bool = True if (args.replace or args.append) else False
+    _drop: bool = True if args.replace else False
+
+    if args.replace or args.append:
+        _filepath: str = args.replace if args.replace else args.append
 
     for file in files:
 
@@ -88,13 +99,11 @@ def main():
             _format.format_metadata(args.short)
             metadata = _format.metadata()
 
-        if args.change:  # should consolidate this
-            copy(args.local, 'convert.jpg')
-            ChangeCoverPage.convert_to_pdf()
+        cover_page_setup(_filepath)
 
         reader = PdfReader(file)
         writer = PdfWriter()
 
         write = Write(metadata[0], metadata[1], reader,
-                      writer, file, args.drop)
-        write.write_to_file(args.output, args.change, args.bookmark)
+                      writer, file, _drop)
+        write.write_to_file(args.output, _insert_cover, args.bookmark)

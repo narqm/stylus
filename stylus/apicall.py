@@ -52,6 +52,7 @@ class GoogleBooksAPICall:
     def call_api(url: str, output: str = 'results.json'):
         '''Sends a GET request to the API.'''
         print(f'Sending request to {url}...')
+        requests.packages.urllib3.disable_warnings()
 
         r: str = requests.get(url)
         assert r.status_code == 200, f'Error - Status Code {r.status_code}'
