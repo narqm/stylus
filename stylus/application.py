@@ -99,11 +99,11 @@ def main():
             _format.format_metadata(args.short)
             metadata = _format.metadata()
 
-        cover_page_setup(_filepath)
+        # cover_page_setup(_filepath)
 
         reader = PdfReader(file)
         writer = PdfWriter()
 
         write = Write(metadata[0], metadata[1], reader,
-                      writer, file, _drop)
+                      writer, file, _drop, _filepath)
         write.write_to_file(args.output, _insert_cover, args.bookmark)
