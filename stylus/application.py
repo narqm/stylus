@@ -2,10 +2,10 @@ from argparse import ArgumentParser
 from pathlib import Path
 from shutil import copy
 from pypdf import PdfReader, PdfWriter
-from imageconvert import ChangeCoverPage
+from image_convert import ChangeCoverPage
 from apicall import GoogleBooksAPICall
-from formatmetadata import FormatMetadata, user_metadata_prompt
-from writetofile import Write
+from format_metadata import FormatMetadata, user_metadata_prompt
+from write_to_file import Write
 from utility import Utilities
 
 
