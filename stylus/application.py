@@ -61,7 +61,7 @@ def main():
     # needs to to accpt image path
     parser.add_argument('-r', '--replace', action='store',
                         help='Replace eBook cover with given JPEG file.')
-    parser.add_argument('-a', '-append', action='store',
+    parser.add_argument('-a', '--append', action='store',
                         help='Appends given JPEG file to cover of eBook.')
     parser.add_argument('-b', '--bookmark', action='store_true',
                         help='Reconstruct eBook table of content.')
@@ -78,12 +78,16 @@ def main():
     files = check_txt_file(args.file, args.isbn, args.author)
 
     isbn: str = args.isbn if args.isbn else ''  # why do I need this?
-
+    # issue passwing reader2writer metadata without args.replace
     _insert_cover: bool = True if (args.replace or args.append) else False
-    _drop: bool = True if args.replace else False
+    _drop: bool = False
+    if args.replace:
+        _drop = True
 
-    if args.replace or args.append:
+    if (args.replace or args.append):
         _filepath: str = args.replace if args.replace else args.append
+    else:
+        _filepath = ''
 
     for file in files:
 
@@ -101,9 +105,10 @@ def main():
 
         # cover_page_setup(_filepath)
 
-        reader = PdfReader(file)
-        writer = PdfWriter()
+        _reader = PdfReader(file)
+        _writer = PdfWriter()
 
-        write = Write(metadata[0], metadata[1], reader,
-                      writer, file, _drop, _filepath)
-        write.write_to_file(args.output, _insert_cover, args.bookmark)
+        write = Write(author=metadata[0], title=metadata[1], reader=_reader,
+                      writer=_writer, _input=file, replace=_drop, image_path=_filepath)
+        write.write_to_file(output=args.output, insert_cover=_insert_cover,
+                            rebuild_outline_flag=args.bookmark)

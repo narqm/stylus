@@ -47,13 +47,15 @@ class Converter:
 
 class Write:
     '''Writes metadata to PDF'''
+
     def __init__(self, author: str, title: str, reader: PdfReader,
                  writer: PdfWriter, _input: str, replace: bool = False,
                  image_path: str = ''):
+
         assert not reader.is_encrypted, 'Failed to edit - document is encrypted.'
 
-        self.reader = reader
-        self.writer = writer
+        self.reader = reader  # metadat present
+        self.writer = writer  # no metadata
         self.input = _input
         self.author = author
         self.title = title
@@ -158,24 +160,25 @@ class Write:
 
         self.apply_transform()
 
-    def write_to_file(self, output: bool = None, insert_cover: bool = False,
+    def write_to_file(self, output: str = None, insert_cover: bool = False,
                       rebuild_outline_flag: bool = False) -> None:
         '''Writes new metadata to file'''
-        if rebuild_outline_flag: self.call_rb(append=True)
-        elif insert_cover: self.insert_new_cover(replace_cover=self.replace)
-        else:
-            self.writer.clone_reader_document_root(self.reader)
-            self.writer.add_metadata(self.reader.metadata)
-
         print('Writing metadata to file...')
+        if rebuild_outline_flag:
+            self.call_rb(append=True)
+        elif insert_cover:
+            self.insert_new_cover(replace_cover=self.replace)
+        else:
+            self.writer.clone_document_from_reader(self.reader)
+
         self.add_my_metadata(self.author, self.title)
 
-        if output is None: output = self.input
+        output: str = self.input if output is None else output
 
         with open(output, 'wb') as file:
             self.writer.write(file)
 
-        self.clean_up()
+        # self.clean_up()
 
         print('PDF metadata successfully updated.')
 
