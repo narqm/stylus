@@ -96,7 +96,7 @@ def main():
         if args.manual:
             metadata = user_metadata_prompt()
         else:
-
+            # improve filename parsing!
             metadata = api_handler(file, args.author, isbn)
 
             _format: FormatMetadata = FormatMetadata(metadata)
@@ -108,6 +108,7 @@ def main():
         _reader = PdfReader(file)
         _writer = PdfWriter()
 
+        # not adding outlines to reg calls
         write = Write(author=metadata[0], title=metadata[1], reader=_reader,
                       writer=_writer, _input=file, replace=_drop, image_path=_filepath)
         write.write_to_file(output=args.output, insert_cover=_insert_cover,
