@@ -25,7 +25,7 @@ If pip throws any errors, then just manually install dependencies. stylus is bui
 
 ## Usage
 ```
-useage: python metadata file [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-i ISNB] [-m MANUAL ENTRY] [-a APPEND] [-r REPLACE] [-s SHORT]
+useage: python stylus file [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-i ISNB] [-m MANUAL ENTRY] [-a APPEND] [-r REPLACE] [-s SHORT]
 
 arguments:
   -h, --help            show this help message and exit
