@@ -1,60 +1,55 @@
-# RESTful-PDF-Metadata-Updater
+# stylus
 A simple command line ebook metadata editor that pulls info from the Google Books Dynamic Links API.
 
 ## Description
 
-The Restful PDF Metadata Updater takes advantage of the [_Google Books Dynamic Links_](https://developers.google.com/books/docs/dynamic-links) API, which according to Google, "allows you to create more customizable, reliable links to Google Books."
+stylus takes advantage of the [_Google Books Dynamic Links_](https://developers.google.com/books/docs/dynamic-links) API, which according to Google, "allows you to create more customizable, reliable links to Google Books." It does this by passing the eBook file name (and any optional flags) to the API and caching responding metadata. It then prompts the user for correctness before cloning the original eBook metadata and applying updates.
 
-The script works by taking file name and user inputs and building an API call around it. Then formatting the returned _JSON_ and prompting the user for correctness. After this it overwrites the ebooks's author, title, and modification date fields with new values.
+It also supports appending and replacing eBook cover pages, which it will try to resize (retaining original aspect ratio) to the original page width. If the document has varying page widths, stylus will attempt resizing to the most common page width.
 
-It also supports inserting or replacing an ebook cover page using _Google Books Static Links_ and the [_iTunes Search API_](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/index.html) or a local file to get high resolution cover pages.
+Note; stylus is an opinionated program, it will concatenate multiple author names (three or more) to `<first-author> and Others`. It will also remove any [grammatical functors](https://en.wikipedia.org/wiki/Function_word) from the eBook title. By default stylus will return the full title, this can be overwritten by using the `--short` flag. 
 
 ## Installation
-This script requires Python 3 to run, you can get it [here](https://www.python.org/downloads/).
 
 Run this if git is installed on your computer:
 ```sh
-git clone https://github.com/narqm/RESTful-Ebook-Metadata-Updater.git
-cd RESTful-PDF-Metadata-Updater
+git clone https://github.com/narqm/stylus.git
+cd stylus
 ```
 Alternatively, click on `Code > Download ZIP` and unzip the source files to a directory.
 The script requires a number of dependencies. Install them by running:
 ```sh
 pip install -r requirements.txt
 ```
+If pip throws any errors, then just manually install dependencies. stylus is built on `pypdf`, `requests`, and `img2pdf`, installing those should resolve any issues.
 
 ## Usage
 ```
-useage: python metadata file [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-i ISNB] [-c ADD COVERPAGE] [-d DROP COVERPAGE] [-l LOCAL IMAGE] [-m MANUAL ENTRY]
+useage: python metadata file [-o OUTPUT] [-a AUTHOR NAME] [-b BOOKMARK PARSER] [-i ISNB] [-m MANUAL ENTRY] [-a APPEND] [-r REPLACE] [-s SHORT]
 
 arguments:
-file FILEPATH                           Your files's path
--o OUTPUT, --output OUTPUT              Desired output location of the updated ebook,
-                                          writes to initial path if omitted
--a AUTHOR NAME, --author                Optional argument to include the author's
-                                          name for better search results.
--b BOOKMARK PARSER, --bookmark          Used for instances of erroneous values encoded
-                                          in the new documents outline.
--i ISBN, --isbn                         Optional argument to search by ISBN-10/13.
--c ADD COVER PAGE, --change              Optional flag to search for and add a new          
-                                          cover page; requires ISBN to function. 
--d DROP COVER PAGE, --drop              Optional flag to drop existing cover page;
-                                          requires ADD COVER PAGE to function.
--l LOCAL IMAGE, --local                 Option to add a local image as cover page,
-                                          requires the ADD COVER PAGE flag to be set.
--m MANUAL ENTRY, --manual               Manually enter ebook metadata.
+  -h, --help            show this help message and exit
+  -o, --output OUTPUT   Path to save your modified eBook to.
+  --author AUTHOR       Search by eBook author.
+  -i, --isbn ISBN       Search by eBook's ISBN-10 value.
+  -r, --replace REPLACE
+                        Replace eBook cover with given JPEG file.
+  -a, --append APPEND   Appends given JPEG file to cover of eBook.
+  -b, --bookmark        Reconstruct eBook table of content.
+  -m, --manual          Manually enter PDF metadata.
+  -s, --short           Don't use full title
 ```
 
-Regarding the `--bookmark` argument, it's an optional flag to call the `rebuild_outline` method. This is to deal with string-encoding issues that can arise when `pypdf` reads PDFs with nested outlines (bookmarks). It will also make a noticable impact on performance, since it has to iterate through every bookmark to remove potential encoding issues.
+Regarding the `--bookmark` argument, it's an optional flag to call the `rebuild_outline` method. This is to deal with string-encoding issues that can arise when `pypdf` reads PDFs with nested outlines (bookmarks).
 
 ## Example
 The following command will get the metadata for _Statistical Inference_ by George Casella.
 ```sh
-stylus "Statistical Inference.pdf" -o "C:\Users\user\Statistical Inference.pdf" -a "George Casella"
+stylus "Statistical Inference.pdf" --author "George Casella" --output "Statistical Inference.pdf"
 ```
 Say you'd like to replace the cover page on a PDF too.
 ```sh
-stylus passions.pdf -i 0300186339 -c -d
+stylus passions.pdf -i 0300186339
 ```
 If you want to edit a number of files at once, copy the file paths to a _.txt_ file and pass it like any other PDF.
 ```sh
