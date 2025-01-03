@@ -150,13 +150,10 @@ class Write:
 
     def insert_new_cover(self, replace_cover: bool = False) -> None:
         '''Adds a new book cover to PDF'''
-        if replace_cover:
-            self.call_rb()
-            for page in self.reader.pages[1:]:
-                self.writer.add_page(page)
-        else:
-            self.writer.clone_reader_document_root(self.reader)
-            self.writer.add_metadata(self.reader.metadata)
+        start: int = 1 if replace_cover else 0
+        self.call_rb()
+        for page in self.reader.pages[start:]:
+            self.writer.add_page(page)
 
         self.apply_transform()
 
