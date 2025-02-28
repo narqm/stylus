@@ -84,8 +84,8 @@ class Write:
         for i in index:
             _widths.append(_input.pages[i].mediabox.width)
             rect_obj_collection.append(_input.pages[i].mediabox)
-        _mode_width: int = mode(_widths)
-        return next(rect for rect in rect_obj_collection if int(rect.width) == _mode_width)
+        _mode_width: float = float(mode(_widths))
+        return next(rect for rect in rect_obj_collection if rect.width == _mode_width)
 
     @staticmethod
     def calc_sample_size(_reader_object: PdfReader) -> int:
