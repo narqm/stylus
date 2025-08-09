@@ -11,7 +11,7 @@ def user_metadata_prompt() -> tuple[str]:
 
 
 class FormatMetadata:
-    '''Formats metadata for grammatical consistancy'''
+    '''Formats metadata for grammatical consistency'''
     functors = ['a', 'an', 'the', 'in', 'on', 'at', 'by', 'and', 
                 'but', 'or', 'you', 'your', 'my', 'his', 'her', 
                 'their', 'this', 'that', 'these', 'those', 'what', 
@@ -125,3 +125,4 @@ class FormatMetadata:
     def metadata(self) -> tuple[str]:
         '''Returns accepted metadata in a tuple.'''
         return self.author, self.title, self.isbn_13, self.thumbnail
+
